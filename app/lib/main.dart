@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'core/services/debug_log_service.dart';
 import 'core/services/tool_registry.dart';
 import 'core/ui/theme.dart';
+import 'pages/debug_page.dart';
 import 'pages/grid_page.dart';
 import 'pages/profile_page.dart';
 import 'providers/app_provider.dart';
@@ -81,6 +83,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PomodoroService()..loadSettings()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BookshelfProvider()),
+        ChangeNotifierProvider(create: (_) => DebugLogService()),
       ],
       child: const AppWrapper(),
     );
@@ -139,6 +142,7 @@ class _MainPageState extends State<MainPage> {
   final _pages = const [
     GridPage(),
     ProfilePage(),
+    DebugPage(),
   ];
 
   @override
@@ -172,6 +176,10 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: '我的',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.construction),
+            label: 'debug',
           ),
         ],
       ),
