@@ -34,4 +34,11 @@ public class AppUserDTO {
     @ApiModelProperty(value = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createdAt;
+
+    @ApiModelProperty(value = "最后登录时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date lastLoginTime;
+
+    @ApiModelProperty(value = "最后登录IP")
+    private String lastLoginIp;
 }
