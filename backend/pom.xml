@@ -13,6 +13,7 @@
         <module>grid-system</module>
         <module>grid-tools</module>
         <module>grid-generator</module>
+        <module>grid-app</module>
     </modules>
 
     <name>Little Grid</name>
