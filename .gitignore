@@ -1,0 +1,15 @@
+.worktrees/
+
+# 环境变量文件
+.env
+
+# Node modules and build files
+node_modules/
+dist/
+package-lock.json
+*.log
+
+# Admin web specific
+admin-web/node_modules/
+admin-web/dist/
+admin-web/package-lock.json

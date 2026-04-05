@@ -1,0 +1,13 @@
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\service\GenConfigService.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\domain\vo\TableInfo.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\repository\GenConfigRepository.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\utils\GenUtil.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\service\impl\GenConfigServiceImpl.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\rest\GeneratorController.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\service\GeneratorService.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\service\impl\GeneratorServiceImpl.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\domain\ColumnInfo.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\rest\GenConfigController.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\utils\ColUtil.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\domain\GenConfig.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-generator\src\main\java\com\naon\grid\repository\ColumnInfoRepository.java

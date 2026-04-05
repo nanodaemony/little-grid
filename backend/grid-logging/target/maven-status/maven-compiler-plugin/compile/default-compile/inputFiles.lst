@@ -1,0 +1,12 @@
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\annotation\Log.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\aspect\LogAspect.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\impl\SysLogServiceImpl.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\mapstruct\LogErrorMapper.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\rest\SysLogController.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\mapstruct\LogSmallMapper.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\domain\SysLog.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\dto\SysLogErrorDto.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\dto\SysLogQueryCriteria.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\repository\LogRepository.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\SysLogService.java
+C:\Users\nano\Desktop\littlegrid\backend\grid-logging\src\main\java\com\naon\grid\service\dto\SysLogSmallDto.java

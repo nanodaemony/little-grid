@@ -1,0 +1,109 @@
+name: littlegrid
+description: 小方格 - 实用工具集合
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+  # 状态管理
+  provider: ^6.1.1
+
+  # 数据库
+  sqflite: ^2.3.0
+  path: ^1.8.3
+
+  # 图表
+  fl_chart: ^0.66.0
+
+  # 图片选择
+  image_picker: ^1.0.7
+
+  # 图片处理
+  flutter_image_compress: ^2.0.0
+
+  # 画板绘制
+  perfect_freehand: ^1.0.0
+
+  # 保存到相册
+  gal: ^2.0.0
+
+  # 路径获取
+  path_provider: ^2.1.0
+
+  # 日志
+  logger: ^2.0.2
+
+  # 动画
+  flutter_animate: ^4.5.0
+
+  # 数学表达式计算
+  math_expressions: ^2.6.0
+
+  # 农历
+  lunar: ^1.7.8
+
+  # HTTP 请求
+  http: ^1.2.0
+  http_parser: ^4.0.0
+  mime: ^1.0.0
+
+  # 地理位置
+  geolocator: ^11.0.0
+
+  # UUID 生成
+  uuid: ^4.0.0
+
+  # 二维码生成
+  qr_flutter: ^4.1.0
+
+  # 本地通知
+  flutter_local_notifications: ^17.0.0
+  timezone: ^0.9.0
+  flutter_timezone: ^3.0.0
+
+  # 振动
+  vibration: ^2.0.0
+
+  # 音频播放
+  audioplayers: ^6.0.0
+
+  # 本地存储
+  shared_preferences: ^2.2.0
+
+  # 屏幕常亮
+  wakelock_plus: ^1.2.4
+
+  # 颜色选择器
+  flutter_colorpicker: ^1.0.3
+
+  # 安全存储
+  flutter_secure_storage: ^9.0.0
+
+  # RSA加密
+  encrypt: ^5.0.1
+
+  # 设备信息
+  device_info_plus: ^9.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/images/coins/

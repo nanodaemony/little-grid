@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="小方格 LittleGrid - 一个优雅的模块化工具集合">
+  <meta name="keywords" content="小方格, LittleGrid, 工具, 投硬币, 掷骰子, 抽卡, 待办事项, 计算器">
+  <meta name="author" content="LittleGrid Team">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="小方格 - LittleGrid | 模块化工具集合">
+  <meta property="og:description" content="一个优雅的模块化工具集合，包含投硬币、掷骰子、抽卡、待办事项、计算器等实用工具">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <title>小方格 - LittleGrid | 模块化工具集合</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header class="header">
+    <div class="header__container">
+      <a href="#" class="header__logo">
+        <span class="header__logo-icon">🧩</span>
+        <span class="header__logo-text">小方格</span>
+      </a>
+      <nav class="header__nav">
+        <a href="#features" class="header__nav-link">功能</a>
+        <a href="#download" class="header__nav-link">下载</a>
+        <a href="#changelog" class="header__nav-link">更新日志</a>
+        <a href="https://github.com/nanodaemony/littlegrid" class="header__nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <button class="header__menu-btn" aria-label="菜单">
+        <span class="header__menu-icon"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero__container">
+      <div class="hero__logo">🧩</div>
+      <h1 class="hero__title">小方格 <span class="hero__title-en">LittleGrid</span></h1>
+      <p class="hero__subtitle">一个优雅的模块化工具集合</p>
+      <div class="hero__actions">
+        <a href="https://github.com/nanodaemony/littlegrid" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+          <span class="btn__icon">⭐</span>
+          GitHub
+        </a>
+        <a href="#download" class="btn btn--secondary">
+          <span class="btn__icon">📱</span>
+          立即下载
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="features__container">
+      <h2 class="features__title">功能介绍</h2>
+      <p class="features__subtitle">小巧精致，实用便捷</p>
+      <div class="features__grid">
+        <!-- Tool Card: Coin Flip -->
+        <article class="tool-card">
+          <div class="tool-card__icon">🪙</div>
+          <h3 class="tool-card__title">投硬币</h3>
+          <p class="tool-card__desc">正反面随机，快速决策</p>
+        </article>
+        <!-- Tool Card: Dice Roll -->
+        <article class="tool-card">
+          <div class="tool-card__icon">🎲</div>
+          <h3 class="tool-card__title">掷骰子</h3>
+          <p class="tool-card__desc">支持1-6个骰子，动画效果</p>
+        </article>
+        <!-- Tool Card: Card Draw -->
+        <article class="tool-card">
+          <div class="tool-card__icon">🃏</div>
+          <h3 class="tool-card__title">抽卡</h3>
+          <p class="tool-card__desc">随机抽取，趣味十足</p>
+        </article>
+        <!-- Tool Card: Todo -->
+        <article class="tool-card">
+          <div class="tool-card__icon">✅</div>
+          <h3 class="tool-card__title">待办事项</h3>
+          <p class="tool-card__desc">简洁的任务管理</p>
+        </article>
+        <!-- Tool Card: Calculator -->
+        <article class="tool-card">
+          <div class="tool-card__icon">🔢</div>
+          <h3 class="tool-card__title">计算器</h3>
+          <p class="tool-card__desc">支持复杂表达式计算</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Section -->
+  <section id="download" class="download">
+    <div class="download__container">
+      <h2 class="download__title">立即下载</h2>
+      <div class="download__qrcode">
+        <img src="assets/images/qrcode-placeholder.png" alt="下载二维码" width="160" height="160" class="download__qrcode-img">
+      </div>
+      <p class="download__hint">扫码下载 APP</p>
+      <div class="download__platforms">
+        <span class="download__platform download__platform--android">
+          <span class="download__platform-icon">📱</span>
+          Android
+        </span>
+        <span class="download__platform download__platform--ios">
+          <span class="download__platform-icon">🍎</span>
+          iOS
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Changelog Section -->
+  <section id="changelog" class="changelog">
+    <div class="changelog__container">
+      <h2 class="changelog__title">更新日志</h2>
+      <div class="changelog__list">
+        <!-- Version 1.0.0 -->
+        <article class="changelog__item">
+          <div class="changelog__item-header">
+            <span class="changelog__version">v1.0.0</span>
+            <time class="changelog__date" datetime="2024-03-20">2024-03-20</time>
+          </div>
+          <ul class="changelog__changes">
+            <li class="changelog__change">首次发布</li>
+            <li class="changelog__change">包含投硬币、掷骰子、抽卡、待办事项、计算器</li>
+            <li class="changelog__change">支持 Android 和 iOS 平台</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback Section -->
+  <section id="feedback" class="feedback">
+    <div class="feedback__container">
+      <h2 class="feedback__title">用户反馈</h2>
+      <p class="feedback__desc">遇到问题或有功能建议？欢迎联系我们！</p>
+      <div class="feedback__actions">
+        <a href="https://github.com/nanodaemony/littlegrid/issues/new?template=bug_report.md" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+          <span class="btn__icon">🐛</span>
+          提交 Issue
+        </a>
+        <a href="https://github.com/nanodaemony/littlegrid/discussions/categories/ideas" class="btn btn--outline" target="_blank" rel="noopener noreferrer">
+          <span class="btn__icon">💡</span>
+          功能建议
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__container">
+      <p class="footer__copyright">&copy; 2024 LittleGrid Team. All rights reserved.</p>
+      <nav class="footer__links">
+        <a href="https://github.com/nanodaemony/littlegrid" class="footer__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="footer__divider">|</span>
+        <a href="https://github.com/nanodaemony/littlegrid/blob/main/LICENSE" class="footer__link" target="_blank" rel="noopener noreferrer">MIT License</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
