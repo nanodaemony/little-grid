@@ -53,7 +53,7 @@ class AppProvider extends ChangeNotifier {
 
       _toolConfigs = configs;
     } catch (e, stack) {
-      AppLogger.e('Failed to init tools', e, stack);
+      AppLogger.e('Failed to init tools', error: e, stackTrace: stack);
     }
 
     _isLoading = false;
@@ -66,7 +66,7 @@ class AppProvider extends ChangeNotifier {
       _avatarPath = await StorageService.getAvatarPath();
       notifyListeners();
     } catch (e, stack) {
-      AppLogger.e('Failed to load avatar', e, stack);
+      AppLogger.e('Failed to load avatar', error: e, stackTrace: stack);
     }
   }
 
@@ -77,7 +77,7 @@ class AppProvider extends ChangeNotifier {
       _avatarPath = path;
       notifyListeners();
     } catch (e, stack) {
-      AppLogger.e('Failed to update avatar', e, stack);
+      AppLogger.e('Failed to update avatar', error: e, stackTrace: stack);
     }
   }
 

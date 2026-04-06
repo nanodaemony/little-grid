@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/services/debug_log_service.dart';
 import '../core/services/log_storage_service.dart';
-import '../core/utils/logger.dart';
 
 class DebugPage extends StatefulWidget {
   const DebugPage({super.key});
