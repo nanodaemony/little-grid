@@ -10,9 +10,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# 默认配置
-DEFAULT_MYSQL_PWD="lSgDPBBPtp4YQdTYOACn"
-DEFAULT_REDIS_PWD="H4FehnB2wqMzW3jA"
+# 默认配置（请通过 .env 文件配置密码）
+DEFAULT_MYSQL_PWD=""
+DEFAULT_REDIS_PWD=""
 DEFAULT_DB_NAME="eladmin"
 
 # 配置变量（将被 .env 覆盖）

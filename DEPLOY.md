@@ -47,14 +47,14 @@
 # ============================================================
 # MySQL 配置
 # ============================================================
-DB_ROOT_PASSWORD=lSgDPBBPtp4YQdTYOACn
+DB_ROOT_PASSWORD=your_mysql_password_here
 DB_NAME=eladmin
 DB_PORT=3306
 
 # ============================================================
 # Redis 配置
 # ============================================================
-REDIS_PWD=H4FehnB2wqMzW3jA
+REDIS_PWD=your_redis_password_here
 REDIS_PORT=6379
 
 # ============================================================
@@ -116,7 +116,7 @@ docker run -d \
   -p 3306:3306 \
   -v littlegrid-mysql-data:/var/lib/mysql \
   -v $(pwd)/backend/sql:/docker-entrypoint-initdb.d:ro \
-  -e MYSQL_ROOT_PASSWORD=lSgDPBBPtp4YQdTYOACn \
+  -e MYSQL_ROOT_PASSWORD=$MYSQL_PWD \
   -e MYSQL_DATABASE=eladmin \
   -e TZ=Asia/Shanghai \
   mysql:8.0 \
@@ -135,7 +135,7 @@ docker run -d \
   -p 6379:6379 \
   -v littlegrid-redis-data:/data \
   redis:7-alpine \
-  redis-server --requirepass H4FehnB2wqMzW3jA --appendonly yes
+  redis-server --requirepass your_redis_password_here --appendonly yes
 ```
 
 ### 3. 部署 Spring Boot Backend
@@ -155,10 +155,10 @@ docker run -d \
   -e SPRING_PROFILES_ACTIVE=prod \
   -e SPRING_DATASOURCE_DRUID_URL="jdbc:p6spy:mysql://littlegrid-mysql:3306/eladmin?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true" \
   -e SPRING_DATASOURCE_USERNAME=root \
-  -e SPRING_DATASOURCE_PASSWORD=lSgDPBBPtp4YQdTYOACn \
+  -e SPRING_DATASOURCE_PASSWORD=$MYSQL_PWD \
   -e REDIS_HOST=littlegrid-redis \
   -e REDIS_PORT=6379 \
-  -e REDIS_PWD=H4FehnB2wqMzW3jA \
+  -e REDIS_PWD=$REDIS_PWD \
   -e SERVER_PORT=8000 \
   littlegrid-backend:latest
 ```
@@ -195,9 +195,9 @@ docker run -d \
 
 set -e
 
-# 配置
-MYSQL_PWD="lSgDPBBPtp4YQdTYOACn"
-REDIS_PWD="H4FehnB2wqMzW3jA"
+# 配置（请先创建 .env 文件配置密码）
+MYSQL_PWD=""  # 从 .env 读取
+REDIS_PWD=""  # 从 .env 读取
 NETWORK="littlegrid-network"
 DB_NAME="eladmin"
 
@@ -472,7 +472,7 @@ docker exec -it littlegrid-backend sh
 docker exec -it littlegrid-mysql mysql -uroot -p
 
 # Redis
-docker exec -it littlegrid-redis redis-cli -a H4FehnB2wqMzW3jA
+docker exec -it littlegrid-redis redis-cli -a $REDIS_PWD
 ```
 
 ### 检查网络连接
@@ -515,13 +515,13 @@ docker rm littlegrid-mysql littlegrid-redis littlegrid-backend littlegrid-fronte
 **备份数据库：**
 
 ```bash
-docker exec littlegrid-mysql mysqldump -uroot -plSgDPBBPtp4YQdTYOACn eladmin > backup_$(date +%Y%m%d).sql
+docker exec littlegrid-mysql mysqldump -uroot -p$MYSQL_PWD eladmin > backup_$(date +%Y%m%d).sql
 ```
 
 **恢复数据库：**
 
 ```bash
-cat backup.sql | docker exec -i littlegrid-mysql mysql -uroot -plSgDPBBPtp4YQdTYOACn eladmin
+cat backup.sql | docker exec -i littlegrid-mysql mysql -uroot -p$MYSQL_PWD eladmin
 ```
 
 ---
