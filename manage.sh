@@ -1,24 +1,18 @@
 #!/bin/bash
 # ============================================================
-# LittleGrid 服务管理脚本
-# 用法: ./manage.sh {mysql|redis|backend|frontend|all|status|logs}
+# LittleGrid Docker 独立部署脚本
+# 用法: ./manage.sh {mysql|redis|backend|frontend|logs|status|stop|restart}
 # ============================================================
 
 set -e
 
-# 获取脚本所在目录（支持软链接）
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# 默认配置（请通过 .env 文件配置密码）
-DEFAULT_MYSQL_PWD=""
-DEFAULT_REDIS_PWD=""
-DEFAULT_DB_NAME="eladmin"
-
-# 配置变量（将被 .env 覆盖）
-MYSQL_PWD="$DEFAULT_MYSQL_PWD"
-REDIS_PWD="$DEFAULT_REDIS_PWD"
-DB_NAME="$DEFAULT_DB_NAME"
+# 配置变量（从 .env 读取）
+MYSQL_PWD=""
+REDIS_PWD=""
+DB_NAME="eladmin"
 NETWORK="littlegrid-network"
 
 # 颜色输出
@@ -34,31 +28,19 @@ print_info() { echo -e "${YELLOW}→ $1${NC}"; }
 # 加载 .env 配置
 load_env() {
   if [ -f "$SCRIPT_DIR/.env" ]; then
-    # 安全加载 .env，处理带空格的值
     while IFS= read -r line || [ -n "$line" ]; do
-      # 跳过注释和空行
       [[ "$line" =~ ^[[:space:]]*# ]] && continue
       [[ -z "$line" ]] && continue
-
-      # 提取变量名和值
       key="${line%%=*}"
       value="${line#*=}"
-
-      # 移除可能的引号
-      value="${value%\"}"
-      value="${value#\"}"
-      value="${value%\'}"
-      value="${value#\'}"
-
-      # 设置变量
+      value="${value%\"}"; value="${value#\"}"
+      value="${value%\'}"; value="${value#\'}"
       case "$key" in
         DB_ROOT_PASSWORD) MYSQL_PWD="$value" ;;
         REDIS_PWD) REDIS_PWD="$value" ;;
         DB_NAME) DB_NAME="$value" ;;
       esac
     done < "$SCRIPT_DIR/.env"
-
-    print_info "已加载 .env 配置"
   fi
 }
 
@@ -68,25 +50,6 @@ create_network() {
     docker network create "$NETWORK"
     print_success "网络 $NETWORK 创建成功"
   fi
-}
-
-# 等待 MySQL 就绪
-wait_for_mysql() {
-  print_info "等待 MySQL 启动..."
-  local max_attempts=30
-  local attempt=0
-
-  while [ $attempt -lt $max_attempts ]; do
-    if docker exec littlegrid-mysql mysqladmin ping -h localhost -u root -p"$MYSQL_PWD" --silent 2>/dev/null; then
-      print_success "MySQL 已就绪"
-      return 0
-    fi
-    attempt=$((attempt + 1))
-    sleep 2
-  done
-
-  print_error "MySQL 启动超时"
-  return 1
 }
 
 # 部署 MySQL
@@ -111,9 +74,6 @@ deploy_mysql() {
     --default-authentication-plugin=mysql_native_password
 
   print_success "MySQL 部署完成 (端口: 3306)"
-
-  # 等待 MySQL 就绪
-  wait_for_mysql
 }
 
 # 部署 Redis
@@ -143,7 +103,6 @@ deploy_backend() {
   docker stop littlegrid-backend 2>/dev/null || true
   docker rm littlegrid-backend 2>/dev/null || true
 
-  # 创建日志目录
   mkdir -p "$SCRIPT_DIR/logs"
 
   docker run -d \
@@ -190,53 +149,32 @@ show_status() {
   echo "==================================="
   echo "  LittleGrid 服务状态"
   echo "==================================="
-
-  local running=0
   for service in mysql redis backend frontend; do
     if docker ps --filter "name=littlegrid-$service" --filter "status=running" --format "{{.Names}}" 2>/dev/null | grep -q .; then
-      status="${GREEN}运行中${NC}"
-      running=$((running + 1))
+      printf "%-25s %b\n" "littlegrid-$service" "${GREEN}运行中${NC}"
     else
-      status="${RED}未运行${NC}"
+      printf "%-25s %b\n" "littlegrid-$service" "${RED}未运行${NC}"
     fi
-    printf "%-25s %b\n" "littlegrid-$service" "$status"
   done
-
-  echo ""
-  echo "运行中服务: $running/4"
 }
 
-# 查看日志
+# 查看 Backend 日志
 show_logs() {
-  local service=$1
-  if [ -z "$service" ]; then
-    echo "用法: $0 logs {mysql|redis|backend|frontend}"
-    exit 1
-  fi
-
-  if ! docker ps --filter "name=littlegrid-$service" --format "{{.Names}}" 2>/dev/null | grep -q .; then
-    print_error "服务 littlegrid-$service 未运行"
-    exit 1
-  fi
-
-  docker logs -f "littlegrid-$service"
+  echo ">>> Spring Boot 日志 (Ctrl+C 退出)"
+  echo ""
+  docker logs -f --tail 100 littlegrid-backend 2>/dev/null || print_error "Backend 服务未运行"
 }
 
 # 停止服务
 stop_service() {
   local service=$1
   if [ -z "$service" ]; then
-    echo "停止所有服务..."
     for svc in frontend backend redis mysql; do
       docker stop "littlegrid-$svc" 2>/dev/null || true
     done
     print_success "所有服务已停止"
   else
-    if docker stop "littlegrid-$service" 2>/dev/null; then
-      print_success "$service 已停止"
-    else
-      print_error "$service 未在运行"
-    fi
+    docker stop "littlegrid-$service" 2>/dev/null && print_success "$service 已停止" || print_error "$service 未运行"
   fi
 }
 
@@ -247,48 +185,35 @@ restart_service() {
     echo "用法: $0 restart {mysql|redis|backend|frontend}"
     exit 1
   fi
-
-  if docker restart "littlegrid-$service" 2>/dev/null; then
-    print_success "$service 重启完成"
-  else
-    print_error "$service 不存在或未运行"
-    exit 1
-  fi
-}
-
-# 清理
-cleanup() {
-  echo "清理未使用的 Docker 资源..."
-  docker system prune -f
-  print_success "清理完成"
+  docker restart "littlegrid-$service" 2>/dev/null && print_success "$service 重启完成" || print_error "$service 不存在"
 }
 
 # 显示帮助
 show_help() {
   cat << 'EOF'
 ===================================
-  LittleGrid 服务管理脚本
+  LittleGrid Docker 独立部署
 ===================================
 
-用法: ./manage.sh <command> [service]
+用法: ./manage.sh <命令> [参数]
 
 命令:
-  mysql       部署/更新 MySQL
-  redis       部署/更新 Redis
-  backend     部署/更新 Backend
-  frontend    部署/更新 Frontend
-  all         部署所有服务
+  mysql       部署 MySQL
+  redis       部署 Redis
+  backend     部署 Spring Boot Backend
+  frontend    部署 Admin Web Frontend
+  logs        查看 Spring Boot 日志
   status      查看服务状态
-  logs        查看日志 (需指定服务)
-  restart     重启服务 (需指定服务)
   stop        停止服务 [可选: 指定服务名]
-  cleanup     清理未使用的Docker资源
+  restart     重启服务 (需指定服务名)
+
+部署顺序: mysql → redis → backend → frontend
 
 示例:
-  ./manage.sh backend       # 更新后端
-  ./manage.sh logs backend  # 查看后端日志
-  ./manage.sh restart mysql # 重启MySQL
-  ./manage.sh stop          # 停止所有服务
+  ./manage.sh mysql       # 部署 MySQL
+  ./manage.sh backend     # 部署 Backend
+  ./manage.sh logs        # 查看日志
+  ./manage.sh status      # 查看状态
 EOF
 }
 
@@ -296,51 +221,14 @@ EOF
 load_env
 
 case "$1" in
-  mysql)
-    create_network
-    deploy_mysql
-    ;;
-  redis)
-    create_network
-    deploy_redis
-    ;;
-  backend)
-    create_network
-    deploy_backend
-    ;;
-  frontend)
-    create_network
-    deploy_frontend
-    ;;
-  all)
-    create_network
-    deploy_mysql
-    deploy_redis
-    deploy_backend
-    deploy_frontend
-    echo ""
-    show_status
-    ;;
-  status)
-    show_status
-    ;;
-  logs)
-    show_logs "$2"
-    ;;
-  restart)
-    restart_service "$2"
-    ;;
-  stop)
-    stop_service "$2"
-    ;;
-  cleanup)
-    cleanup
-    ;;
-  help|--help|-h)
-    show_help
-    ;;
-  *)
-    show_help
-    exit 1
-    ;;
+  mysql)    create_network; deploy_mysql ;;
+  redis)    create_network; deploy_redis ;;
+  backend)  create_network; deploy_backend ;;
+  frontend) create_network; deploy_frontend ;;
+  logs)     show_logs ;;
+  status)   show_status ;;
+  stop)     stop_service "$2" ;;
+  restart)  restart_service "$2" ;;
+  help|--help|-h) show_help ;;
+  *)        show_help; exit 1 ;;
 esac
