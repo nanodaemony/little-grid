@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
@@ -14,8 +15,9 @@ COPY grid-tools/pom.xml grid-tools/
 COPY grid-generator/pom.xml grid-generator/
 COPY grid-app/pom.xml grid-app/
 
-# 下载依赖 (如果 pom.xml 没变，这一层会被缓存)
-RUN mvn dependency:go-offline -B
+# 下载依赖 - 使用缓存挂载持久化 Maven 本地仓库
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn dependency:go-offline -B
 
 # 复制源码
 COPY grid-common/src grid-common/src
@@ -25,8 +27,9 @@ COPY grid-tools/src grid-tools/src
 COPY grid-generator/src grid-generator/src
 COPY grid-app/src grid-app/src
 
-# 构建项目
-RUN mvn clean package -DskipTests
+# 构建项目 - 使用缓存挂载
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn clean package -DskipTests
 
 # 运行时镜像
 FROM eclipse-temurin:17-jre-alpine
