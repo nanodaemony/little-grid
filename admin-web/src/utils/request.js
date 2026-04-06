@@ -27,7 +27,8 @@ service.interceptors.request.use(
     config.headers['Content-Type'] = 'application/json'
 
     // 打印请求日志
-    Logger.info('HTTP', `${config.method?.toUpperCase() || 'GET'} ${config.url}`, {
+    const method = config.method && config.method.toUpperCase() || 'GET'
+    Logger.info('HTTP', method + ' ' + config.url, {
       params: config.params,
       data: config.data
     })
@@ -44,7 +45,8 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     // 打印响应日志
-    Logger.info('HTTP', `响应 ${response.config?.url}`, {
+    const url = response.config && response.config.url || ''
+    Logger.info('HTTP', '响应 ' + url, {
       status: response.status,
       data: response.data
     })
@@ -52,13 +54,18 @@ service.interceptors.response.use(
   },
   error => {
     // 打印错误日志
-    Logger.error('HTTP', `请求失败 ${error.config?.url}`, {
-      status: error.response?.status,
-      message: error.response?.data?.message || error.message
+    const errorUrl = error.config && error.config.url || ''
+    const errorStatus = error.response && error.response.status
+    const errorMsg = error.response && error.response.data && error.response.data.message || error.message
+    Logger.error('HTTP', '请求失败 ' + errorUrl, {
+      status: errorStatus,
+      message: errorMsg
     })
 
     // 兼容blob下载出错json提示
-    if (error.response?.data instanceof Blob && error.response?.data.type?.toLowerCase().indexOf('json') !== -1) {
+    const errorData = error.response && error.response.data
+    const errorDataType = errorData && errorData.type && errorData.type.toLowerCase().indexOf('json') !== -1
+    if (errorData instanceof Blob && errorDataType) {
       const reader = new FileReader()
       reader.readAsText(error.response.data, 'utf-8')
       reader.onload = function(e) {
@@ -71,7 +78,7 @@ service.interceptors.response.use(
     } else {
       let code = 0
       try {
-        code = error.response?.data?.status
+        code = error.response && error.response.data && error.response.data.status
       } catch (e) {
         if (error.toString().indexOf('Error: timeout') !== -1) {
           Notification.error({
@@ -90,7 +97,7 @@ service.interceptors.response.use(
         } else if (code === 403) {
           router.push({ path: '/401' })
         } else {
-          const errorMsg = error.response?.data?.message
+          const errorMsg = error.response && error.response.data && error.response.data.message
           if (errorMsg !== undefined) {
             Notification.error({
               title: errorMsg,
