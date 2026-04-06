@@ -8,7 +8,8 @@ class AppConstants {
 
   // 数据库
   static const String dbName = 'littlegrid.db';
-  static const int dbVersion = 8;
+  static const int dbVersion = 9;
+  static const int logMaxCount = 1000;
 
   // 分类
   static const String categoryLife = 'life';
