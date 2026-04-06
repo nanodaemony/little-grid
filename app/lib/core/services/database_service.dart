@@ -230,6 +230,21 @@ class DatabaseService {
       )
     ''');
 
+    // 日志表
+    await db.execute('''
+      CREATE TABLE logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp INTEGER NOT NULL,
+        level TEXT NOT NULL,
+        module TEXT,
+        trace_id TEXT,
+        message TEXT NOT NULL,
+        error TEXT
+      )
+    ''');
+    await db.execute('CREATE INDEX idx_logs_timestamp ON logs(timestamp)');
+    await db.execute('CREATE INDEX idx_logs_trace_id ON logs(trace_id)');
+
     AppLogger.i('Database tables created successfully');
   }
 
@@ -418,6 +433,24 @@ class DatabaseService {
         )
       ''');
       AppLogger.i('Added anniversary_items table');
+    }
+
+    if (oldVersion < 9) {
+      // 日志表
+      await db.execute('''
+        CREATE TABLE logs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp INTEGER NOT NULL,
+          level TEXT NOT NULL,
+          module TEXT,
+          trace_id TEXT,
+          message TEXT NOT NULL,
+          error TEXT
+        )
+      ''');
+      await db.execute('CREATE INDEX idx_logs_timestamp ON logs(timestamp)');
+      await db.execute('CREATE INDEX idx_logs_trace_id ON logs(trace_id)');
+      AppLogger.i('Added logs table');
     }
   }
 
