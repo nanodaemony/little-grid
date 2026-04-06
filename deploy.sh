@@ -5,6 +5,10 @@
 
 set -e
 
+# 启用 BuildKit 以支持缓存挂载，加速依赖下载
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
 # 颜色输出
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -32,6 +36,7 @@ print_help() {
     echo "  logs         - 查看所有服务日志"
     echo "  status       - 查看服务状态"
     echo "  clean        - 清理未使用的镜像和卷"
+    echo "  clean-cache  - 清理 Maven 构建缓存（解决依赖问题）"
     echo "  help         - 显示此帮助信息"
     echo ""
     echo "示例:"
@@ -161,6 +166,19 @@ deploy_clean() {
     fi
 }
 
+# 函数：清理构建缓存
+deploy_clean_cache() {
+    print_warning "清理 Maven 构建缓存..."
+    echo "这将清理 Docker BuildKit 缓存，下次构建需要重新下载依赖"
+    read -p "确认清理? (y/N): " confirm
+    if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+        docker builder prune -f
+        print_success "缓存清理完成"
+    else
+        print_warning "已取消操作"
+    fi
+}
+
 # 主逻辑
 main() {
     case "${1:-help}" in
@@ -187,6 +205,9 @@ main() {
             ;;
         clean)
             deploy_clean
+            ;;
+        clean-cache)
+            deploy_clean_cache
             ;;
         help|--help|-h)
             print_help
