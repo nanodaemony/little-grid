@@ -9,6 +9,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# 数据存储目录（服务器固定路径）
+DATA_DIR="/home/nano/littlegrid-data"
+
 # 配置变量（从 .env 读取）
 MYSQL_PWD=""
 REDIS_PWD=""
@@ -58,14 +61,14 @@ deploy_mysql() {
   docker stop littlegrid-mysql 2>/dev/null || true
   docker rm littlegrid-mysql 2>/dev/null || true
 
-  mkdir -p "$SCRIPT_DIR/data/mysql"
+  mkdir -p "$DATA_DIR/mysql"
 
   docker run -d \
     --name littlegrid-mysql \
     --network "$NETWORK" \
     --restart unless-stopped \
     -p 3306:3306 \
-    -v "$SCRIPT_DIR/data/mysql:/var/lib/mysql" \
+    -v "$DATA_DIR/mysql:/var/lib/mysql" \
     -v "$SCRIPT_DIR/backend/sql:/docker-entrypoint-initdb.d:ro" \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_PWD" \
     -e MYSQL_DATABASE="$DB_NAME" \
@@ -75,7 +78,7 @@ deploy_mysql() {
     --collation-server=utf8mb4_unicode_ci \
     --default-authentication-plugin=mysql_native_password
 
-  print_success "MySQL 部署完成 (端口: 3306, 数据: ./data/mysql)"
+  print_success "MySQL 部署完成 (端口: 3306, 数据: $DATA_DIR/mysql)"
 }
 
 # 部署 Redis
@@ -84,18 +87,18 @@ deploy_redis() {
   docker stop littlegrid-redis 2>/dev/null || true
   docker rm littlegrid-redis 2>/dev/null || true
 
-  mkdir -p "$SCRIPT_DIR/data/redis"
+  mkdir -p "$DATA_DIR/redis"
 
   docker run -d \
     --name littlegrid-redis \
     --network "$NETWORK" \
     --restart unless-stopped \
     -p 6379:6379 \
-    -v "$SCRIPT_DIR/data/redis:/data" \
+    -v "$DATA_DIR/redis:/data" \
     redis:7-alpine \
     redis-server --requirepass "$REDIS_PWD" --appendonly yes
 
-  print_success "Redis 部署完成 (端口: 6379, 数据: ./data/redis)"
+  print_success "Redis 部署完成 (端口: 6379, 数据: $DATA_DIR/redis)"
 }
 
 # 部署 Backend
