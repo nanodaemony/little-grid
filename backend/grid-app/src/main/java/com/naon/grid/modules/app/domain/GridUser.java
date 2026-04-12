@@ -27,10 +27,6 @@ public class GridUser implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "用户名不能为空")
-    @Column(name = "username", nullable = false, unique = true, length = 50)
-    private String username;
-
     @NotBlank(message = "密码不能为空")
     @Column(name = "password", nullable = false, length = 100)
     private String password;
