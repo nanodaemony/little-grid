@@ -10,9 +10,6 @@ public class AppUserDTO {
     @ApiModelProperty(value = "用户ID")
     private Long id;
 
-    @ApiModelProperty(value = "用户名")
-    private String username;
-
     @ApiModelProperty(value = "昵称")
     private String nickname;
 
