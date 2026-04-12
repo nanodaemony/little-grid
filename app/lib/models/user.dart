@@ -4,6 +4,7 @@ class User {
   final int id;
   final String? phone;
   final String? nickname;
+  final String? avatar;
   final String? avatarUrl;
   final String? email;
 
@@ -11,6 +12,7 @@ class User {
     required this.id,
     this.phone,
     this.nickname,
+    this.avatar,
     this.avatarUrl,
     this.email,
   });
@@ -20,7 +22,8 @@ class User {
       id: json['id'] as int,
       phone: json['phone'] as String?,
       nickname: json['nickname'] as String?,
-      avatarUrl: json['avatarUrl'] as String?,
+      avatar: json['avatar'] as String?,
+      avatarUrl: json['avatarUrl'] as String? ?? json['avatar'] as String?,
       email: json['email'] as String?,
     );
   }
@@ -30,6 +33,7 @@ class User {
       'id': id,
       'phone': phone,
       'nickname': nickname,
+      'avatar': avatar,
       'avatarUrl': avatarUrl,
       'email': email,
     };
