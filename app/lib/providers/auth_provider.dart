@@ -152,4 +152,22 @@ class AuthProvider extends ChangeNotifier {
       throw e;
     }
   }
+
+  /// Update user info
+  Future<bool> updateUser({String? nickname, String? email}) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final user = await AuthService.updateUser(nickname: nickname, email: email);
+      _currentUser = user;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw e;
+    }
+  }
 }
