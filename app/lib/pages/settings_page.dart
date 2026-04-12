@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/ui/app_colors.dart';
+import '../providers/auth_provider.dart';
+import 'my_info_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -54,6 +57,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const Divider(),
 
+          // 账号设置
+          _buildSectionHeader('账号'),
+          _buildMenuItem(
+            icon: Icons.person_outline,
+            title: '我的信息',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MyInfoPage(),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+
           // 数据管理
           _buildSectionHeader('数据'),
           _buildMenuItem(
@@ -88,6 +108,30 @@ class _SettingsPageState extends State<SettingsPage> {
               // TODO: 显示隐私政策
             },
           ),
+
+          const SizedBox(height: 32),
+
+          // 退出登录按钮
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ElevatedButton(
+              onPressed: _logout,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                '退出登录',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -191,5 +235,32 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('退出登录'),
+        content: const Text('确定要退出登录吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await context.read<AuthProvider>().logout();
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 }
