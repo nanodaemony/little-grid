@@ -6,7 +6,6 @@ import '../models/user.dart';
 import '../providers/app_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/avatar_picker.dart';
-import 'login/bind_email_page.dart';
 import 'login/login_page.dart';
 import 'settings_page.dart';
 import 'feedback/feedback_page.dart';
@@ -19,14 +18,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String _nickname = '用户';
-
-  Future<void> _onAvatarTap() async {
-    final path = await AvatarPicker.show(context);
-    if (path != null && mounted) {
-      await context.read<AppProvider>().updateAvatar(path);
-    }
-  }
 
   Widget _buildAvatar(String? avatarPath) {
     // 默认头像
@@ -167,10 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   // 头像
-                  GestureDetector(
-                    onTap: _onAvatarTap,
-                    child: _buildAvatar(appProvider.avatarPath),
-                  ),
+                  _buildAvatar(appProvider.avatarPath),
 
                   const SizedBox(height: 16),
 
@@ -191,64 +179,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildLoggedInUser(User user) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              user.nickname ?? '用户',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.edit,
-              size: 16,
-              color: Colors.white70,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
         Text(
-          user.phone ?? '',
+          user.nickname ?? '用户',
           style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white70,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-        ),
-        const SizedBox(height: 16),
-        // Show bind email button if user has no email
-        if (user.email == null || user.email!.isEmpty)
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const BindEmailPage()),
-              );
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white70,
-            ),
-            child: const Text('绑定邮箱'),
-          ),
-        // Show email if user has email
-        if (user.email != null && user.email!.isNotEmpty)
-          Text(
-            user.email!,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.white70,
-            ),
-          ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: () => _logout(),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white70,
-          ),
-          child: const Text('退出登录'),
         ),
       ],
     );
@@ -280,30 +217,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Future<void> _logout() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('退出登录'),
-        content: const Text('确定要退出登录吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await context.read<AuthProvider>().logout();
-    }
-  }
-
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
@@ -316,38 +229,6 @@ class _ProfilePageState extends State<ProfilePage> {
       trailing: trailing ?? const Icon(Icons.chevron_right),
       onTap: onTap,
     );
-  }
-
-  Future<void> _editNickname() async {
-    final controller = TextEditingController(text: _nickname);
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('修改昵称'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '昵称',
-            hintText: '输入新昵称',
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('保存'),
-          ),
-        ],
-      ),
-    );
-
-    if (newName != null && newName.isNotEmpty) {
-      setState(() => _nickname = newName);
-    }
   }
 
   void _showAboutDialog() {
