@@ -38,6 +38,7 @@ import 'tools/bookshelf/bookshelf_tool.dart';
 import 'tools/bookshelf/providers/bookshelf_provider.dart';
 import 'tools/bmi/bmi_tool.dart';
 import 'tools/game2048/game2048_tool.dart';
+import 'tools/salary_calculator/salary_calculator_tool.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +71,7 @@ void main() async {
   ToolRegistry.register(BookshelfTool());
   ToolRegistry.register(BMITool());
   ToolRegistry.register(Game2048Tool());
+  ToolRegistry.register(SalaryCalculatorTool());
 
   runApp(const MyApp());
 }
