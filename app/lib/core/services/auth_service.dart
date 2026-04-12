@@ -185,4 +185,32 @@ class AuthService {
       throw Exception('重置失败: ${response.body}');
     }
   }
+
+  /// Update user info
+  static Future<User> updateUser({String? nickname, String? email}) async {
+    final token = await SecureStorage.getToken();
+    if (token == null) {
+      throw Exception('请先登录');
+    }
+
+    final Map<String, dynamic> body = {};
+    if (nickname != null) body['nickname'] = nickname;
+    if (email != null) body['email'] = email;
+
+    final response = await HttpClient.post(
+      Uri.parse('$_baseUrl/user/update'),
+      headers: {'Authorization': token},
+      body: body,
+      module: 'AuthService',
+    );
+
+    if (response.statusCode == 200) {
+      final userJson = jsonDecode(response.body);
+      final user = User.fromJson(userJson);
+      await SecureStorage.saveUser(user.toJsonString());
+      return user;
+    } else {
+      throw Exception('更新失败: ${response.body}');
+    }
+  }
 }
