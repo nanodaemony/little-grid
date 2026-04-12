@@ -2,30 +2,23 @@ package com.naon.grid.modules.app.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.naon.grid.config.properties.RsaProperties;
 import com.naon.grid.exception.BadRequestException;
 import com.naon.grid.modules.app.domain.GridUser;
 import com.naon.grid.modules.app.enums.AppErrorCode;
 import com.naon.grid.modules.app.enums.AppUserStatus;
 import com.naon.grid.modules.app.enums.Gender;
 import com.naon.grid.modules.app.repository.GridUserRepository;
-import com.naon.grid.modules.app.security.DeviceManager;
 import com.naon.grid.modules.app.service.AppAuthService;
 import com.naon.grid.modules.app.service.dto.*;
-import com.naon.grid.utils.RedisUtils;
-import com.naon.grid.utils.RsaUtils;
 import com.naon.grid.utils.StringUtils;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -34,12 +27,7 @@ public class AppAuthServiceImpl implements AppAuthService {
 
     private final GridUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DeviceManager deviceManager;
-    private final RedisUtils redisUtils;
     private final com.naon.grid.modules.app.security.AppTokenProvider appTokenProvider;
-
-    @Value("${app.auth.token-validity-in-seconds:604800}")
-    private long tokenValidityInSeconds;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -93,7 +81,8 @@ public class AppAuthServiceImpl implements AppAuthService {
 
     @Override
     public void logout(Long userId, String deviceId) {
-        deviceManager.removeDevice(userId, deviceId);
+        // 纯JWT方式：客户端删除token即可，服务端无需操作
+        log.info("User {} logged out from device {}", userId, deviceId);
     }
 
     @Override
@@ -106,9 +95,8 @@ public class AppAuthServiceImpl implements AppAuthService {
         TokenDTO tokenDTO = new TokenDTO();
         tokenDTO.setToken(appTokenProvider.createToken(user.getId(), deviceId));
         tokenDTO.setRefreshToken("mock_refresh_" + user.getId());
-        tokenDTO.setExpiresIn(tokenValidityInSeconds);
+        tokenDTO.setExpiresIn(15552000L); // 半年，单位秒
         tokenDTO.setUser(convertToDTO(user));
-        deviceManager.registerDevice(user.getId(), deviceId, tokenDTO.getToken());
         return tokenDTO;
     }
 

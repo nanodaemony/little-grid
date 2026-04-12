@@ -1,14 +1,12 @@
 package com.naon.grid.modules.app.security;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
-import com.naon.grid.modules.security.config.SecurityProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,9 +27,12 @@ public class AppTokenProvider implements InitializingBean {
 
     private Key signingKey;
     private JwtParser jwtParser;
-    private final SecurityProperties properties;
+    private final com.naon.grid.modules.security.config.SecurityProperties properties;
 
-    public AppTokenProvider(SecurityProperties properties) {
+    @Value("${app.auth.token-validity-in-seconds:15552000}")
+    private long tokenValidityInSeconds;
+
+    public AppTokenProvider(com.naon.grid.modules.security.config.SecurityProperties properties) {
         this.properties = properties;
     }
 
@@ -51,10 +52,14 @@ public class AppTokenProvider implements InitializingBean {
         claims.put(TOKEN_TYPE_KEY, TOKEN_TYPE_ACCESS);
         claims.put("jti", IdUtil.simpleUUID());
 
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + tokenValidityInSeconds * 1000);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(String.valueOf(userId))
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
+                .setExpiration(expiration)
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -66,5 +71,31 @@ public class AppTokenProvider implements InitializingBean {
     public Long getUserIdFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get(AUTHORITIES_UID_KEY, Long.class);
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = getClaims(token);
+            Date expiration = claims.getExpiration();
+            return expiration.before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (Exception e) {
+            log.error("Token validation error", e);
+            return true;
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return !isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            log.warn("Token expired: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.warn("Invalid token: {}", e.getMessage());
+            return false;
+        }
     }
 }

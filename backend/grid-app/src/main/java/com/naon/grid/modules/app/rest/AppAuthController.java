@@ -54,13 +54,9 @@ public class AppAuthController {
     @AnonymousPostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestParam String deviceId,
                                         HttpServletRequest request) {
-        String authHeader = request.getHeader(securityProperties.getHeader());
-        String token = null;
-        if (authHeader != null && authHeader.startsWith(securityProperties.getTokenStartWith())) {
-            token = authHeader.substring(securityProperties.getTokenStartWith().length());
-        }
-        if (token == null) {
-            throw new com.naon.grid.exception.BadRequestException("请先登录");
+        String token = parseTokenFromRequest(request);
+        if (!appTokenProvider.validateToken(token)) {
+            throw new com.naon.grid.exception.BadRequestException("登录状态已过期，请重新登录");
         }
         Long userId = appTokenProvider.getUserIdFromToken(token);
         appAuthService.logout(userId, deviceId);
@@ -73,20 +69,23 @@ public class AppAuthController {
     public ResponseEntity<AppUserDTO> updateUser(@Validated @RequestBody UpdateUserDTO updateUserDTO,
                                                    HttpServletRequest request) {
         log.info("Received updateUser request, nickname={}, email={}", updateUserDTO.getNickname(), updateUserDTO.getEmail());
-        String authHeader = request.getHeader(securityProperties.getHeader());
-        log.info("Authorization header: {}", authHeader != null ? "present" : "missing");
-        String token = null;
-        if (authHeader != null && authHeader.startsWith(securityProperties.getTokenStartWith())) {
-            token = authHeader.substring(securityProperties.getTokenStartWith().length());
-        }
-        if (token == null) {
-            log.warn("No token found in request");
-            throw new com.naon.grid.exception.BadRequestException("请先登录");
+        String token = parseTokenFromRequest(request);
+        if (!appTokenProvider.validateToken(token)) {
+            log.warn("Invalid or expired token");
+            throw new com.naon.grid.exception.BadRequestException("登录状态已过期，请重新登录");
         }
         Long userId = appTokenProvider.getUserIdFromToken(token);
         log.info("Current user ID from token: {}", userId);
         AppUserDTO userDTO = appAuthService.updateUser(userId, updateUserDTO);
         log.info("updateUser completed successfully");
         return ResponseEntity.ok(userDTO);
+    }
+
+    private String parseTokenFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader(securityProperties.getHeader());
+        if (authHeader != null && authHeader.startsWith(securityProperties.getTokenStartWith())) {
+            return authHeader.substring(securityProperties.getTokenStartWith().length());
+        }
+        throw new com.naon.grid.exception.BadRequestException("请先登录");
     }
 }
