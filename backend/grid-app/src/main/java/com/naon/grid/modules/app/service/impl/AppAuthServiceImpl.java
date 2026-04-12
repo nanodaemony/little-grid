@@ -44,10 +44,6 @@ public class AppAuthServiceImpl implements AppAuthService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public TokenDTO register(RegisterDTO registerDTO, HttpServletRequest request) {
-        // 检查用户名
-        if (userRepository.existsByUsername(registerDTO.getUsername())) {
-            throw new BadRequestException(AppErrorCode.USERNAME_EXISTS.getMessage());
-        }
         // 检查手机号
         if (userRepository.existsByPhone(registerDTO.getPhone())) {
             throw new BadRequestException(AppErrorCode.PHONE_EXISTS.getMessage());
@@ -56,11 +52,19 @@ public class AppAuthServiceImpl implements AppAuthService {
         String decryptedPassword = registerDTO.getPassword();
         // 创建用户
         GridUser user = new GridUser();
-        user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(decryptedPassword));
         user.setPhone(registerDTO.getPhone());
         user.setEmail(registerDTO.getEmail());
-        user.setNickname(StrUtil.isNotBlank(registerDTO.getNickname()) ? registerDTO.getNickname() : registerDTO.getUsername());
+        // 生成 nickname：用户传入则使用，否则自动生成 "用户XXX"
+        String nickname;
+        if (StrUtil.isNotBlank(registerDTO.getNickname())) {
+            nickname = registerDTO.getNickname();
+        } else {
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String suffix = timestamp.substring(timestamp.length() - 5);
+            nickname = "用户" + suffix;
+        }
+        user.setNickname(nickname);
         user.setGender(Gender.UNKNOWN.getCode());
         user.setStatus(AppUserStatus.ENABLED.getCode());
         user.setRegisterIp(StringUtils.getIp(request));
@@ -100,7 +104,7 @@ public class AppAuthServiceImpl implements AppAuthService {
 
     private TokenDTO generateToken(GridUser user, String deviceId) {
         TokenDTO tokenDTO = new TokenDTO();
-        tokenDTO.setToken(appTokenProvider.createToken(user.getId(), user.getUsername(), deviceId));
+        tokenDTO.setToken(appTokenProvider.createToken(user.getId(), deviceId));
         tokenDTO.setRefreshToken("mock_refresh_" + user.getId());
         tokenDTO.setExpiresIn(tokenValidityInSeconds);
         tokenDTO.setUser(convertToDTO(user));
