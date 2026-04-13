@@ -199,6 +199,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return Consumer<AppProvider>(
       builder: (context, provider, child) {
         return Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
