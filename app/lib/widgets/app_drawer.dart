@@ -214,26 +214,12 @@ class _AppDrawerState extends State<AppDrawer> {
                 _buildAvatar(provider.avatarPath),
                 const SizedBox(height: 16),
                 // Nickname
-                GestureDetector(
-                  onTap: _editNickname,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _nickname,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.edit,
-                        size: 16,
-                        color: Colors.white70,
-                      ),
-                    ],
+                Text(
+                  _nickname,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
