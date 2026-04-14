@@ -42,6 +42,7 @@ import 'tools/salary_calculator/salary_calculator_tool.dart';
 import 'tools/horoscope/horoscope_tool.dart';
 import 'tools/treehole/treehole_tool.dart';
 import 'tools/pixel_art/pixel_art_tool.dart';
+import 'tools/maze/maze_tool.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,7 @@ void main() async {
   ToolRegistry.register(HoroscopeTool());
   ToolRegistry.register(TreeholeTool());
   ToolRegistry.register(PixelArtTool());
+  ToolRegistry.register(MazeTool());
 
   runApp(const MyApp());
 }
