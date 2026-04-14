@@ -98,20 +98,14 @@ class AppProvider extends ChangeNotifier {
   List<ToolConfig> getSortedTools() {
     final sorted = List<ToolConfig>.from(_toolConfigs);
 
-    // 按置顶和最后使用时间排序
+    // 按置顶和功能名称排序
     sorted.sort((a, b) {
       // 置顶优先
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
 
-      // 然后按最后使用时间
-      if (a.lastUsedAt != null && b.lastUsedAt != null) {
-        return b.lastUsedAt!.compareTo(a.lastUsedAt!);
-      }
-      if (a.lastUsedAt != null) return -1;
-      if (b.lastUsedAt != null) return 1;
-
-      return a.sortOrder.compareTo(b.sortOrder);
+      // 按功能名称排序（字母/拼音顺序）
+      return a.name.compareTo(b.name);
     });
 
     return sorted;
