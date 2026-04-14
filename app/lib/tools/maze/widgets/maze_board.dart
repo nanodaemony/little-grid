@@ -1,41 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' show Vector3;
 import '../maze_models.dart';
-import '../maze_logic.dart';
 
 /// 迷宫画布
-class MazeBoard extends StatefulWidget {
+class MazeBoard extends StatelessWidget {
   final MazeState state;
   final MazeThemeData theme;
-  final TransformationController transformationController;
 
   const MazeBoard({
     super.key,
     required this.state,
     required this.theme,
-    required this.transformationController,
   });
 
   @override
-  State<MazeBoard> createState() => _MazeBoardState();
-}
-
-class _MazeBoardState extends State<MazeBoard> {
-  static const double cellSize = 32.0;
-  static const double wallThickness = 2.0;
-
-  @override
   Widget build(BuildContext context) {
-    final boardWidth = widget.state.cols * cellSize;
-    final boardHeight = widget.state.rows * cellSize;
+    const cellSize = 32.0;
+    const wallThickness = 2.0;
+    final boardWidth = state.cols * cellSize;
+    final boardHeight = state.rows * cellSize;
 
     return SizedBox(
       width: boardWidth,
       height: boardHeight,
       child: CustomPaint(
         painter: _MazePainter(
-          state: widget.state,
-          theme: widget.theme,
+          state: state,
+          theme: theme,
           cellSize: cellSize,
           wallThickness: wallThickness,
         ),
@@ -218,6 +208,9 @@ class _MazePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MazePainter oldDelegate) {
-    return oldDelegate.state != state || oldDelegate.theme != theme;
+    return oldDelegate.state != state ||
+        oldDelegate.theme != theme ||
+        oldDelegate.cellSize != cellSize ||
+        oldDelegate.wallThickness != wallThickness;
   }
 }

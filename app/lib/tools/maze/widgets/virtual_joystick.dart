@@ -43,16 +43,18 @@ class VirtualJoystick extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               // 中间空位
-              SizedBox(
+              const SizedBox(
                 width: 64,
                 height: 64,
                 child: Center(
-                  child: Container(
+                  child: SizedBox(
                     width: 24,
                     height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      shape: BoxShape.circle,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ),
@@ -109,27 +111,17 @@ class _DirectionButtonState extends State<_DirectionButton> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return GestureDetector(
-      onTapDown: (_) {
+    return Listener(
+      onPointerDown: (_) {
         setState(() => _isPressed = true);
         widget.onDirectionStart(widget.direction);
       },
-      onTapUp: (_) {
+      onPointerUp: (_) {
         setState(() => _isPressed = false);
         widget.onDirectionEnd();
-      },
-      onTapCancel: () {
-        setState(() => _isPressed = false);
-        widget.onDirectionEnd();
-      },
-      onTap: () {
         widget.onDirectionTap?.call(widget.direction);
       },
-      onLongPressStart: (_) {
-        setState(() => _isPressed = true);
-        widget.onDirectionStart(widget.direction);
-      },
-      onLongPressEnd: (_) {
+      onPointerCancel: (_) {
         setState(() => _isPressed = false);
         widget.onDirectionEnd();
       },
