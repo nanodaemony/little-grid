@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/ui/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import 'treehole_post_page.dart';

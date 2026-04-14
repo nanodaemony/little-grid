@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -123,7 +124,7 @@ class PixelArtProcessor {
           final pixel = image.getPixel(x, y);
           final gray = img.getLuminance(pixel);
           final quantizedGray = (gray / step).round() * step;
-          image.setPixelRgba(x, y, quantizedGray, quantizedGray, quantizedGray);
+          image.setPixelRgba(x, y, quantizedGray, quantizedGray, quantizedGray, 255);
         }
       }
     } else {
@@ -132,10 +133,10 @@ class PixelArtProcessor {
       for (int y = 0; y < image.height; y++) {
         for (int x = 0; x < image.width; x++) {
           final pixel = image.getPixel(x, y);
-          final r = _quantizeChannel(img.getRed(pixel), bitsPerChannel);
-          final g = _quantizeChannel(img.getGreen(pixel), bitsPerChannel);
-          final b = _quantizeChannel(img.getBlue(pixel), bitsPerChannel);
-          image.setPixelRgba(x, y, r, g, b);
+          final r = _quantizeChannel(pixel.r.toInt(), bitsPerChannel);
+          final g = _quantizeChannel(pixel.g.toInt(), bitsPerChannel);
+          final b = _quantizeChannel(pixel.b.toInt(), bitsPerChannel);
+          image.setPixelRgba(x, y, r, g, b, 255);
         }
       }
     }
@@ -165,9 +166,9 @@ class PixelArtProcessor {
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
         final pixel = image.getPixel(x, y);
-        final r = img.getRed(pixel);
-        final g = img.getGreen(pixel);
-        final b = img.getBlue(pixel);
+        final r = pixel.r.toInt();
+        final g = pixel.g.toInt();
+        final b = pixel.b.toInt();
 
         // 找到最近的调色板颜色
         var minDist = double.maxFinite;
@@ -181,7 +182,7 @@ class PixelArtProcessor {
           }
         }
 
-        image.setPixelRgba(x, y, nearestColor[0], nearestColor[1], nearestColor[2]);
+        image.setPixelRgba(x, y, nearestColor[0], nearestColor[1], nearestColor[2], 255);
       }
     }
     return image;
@@ -192,12 +193,12 @@ class PixelArtProcessor {
     final dr = r1 - r2;
     final dg = g1 - g2;
     final db = b1 - b2;
-    return dr * dr + dg * dg + db * db;
+    return (dr * dr + dg * dg + db * db).toDouble();
   }
 
   /// 边缘检测
   img.Image _detectEdges(img.Image image) {
-    final result = img.Image(image.width, image.height);
+    final result = img.Image(width: image.width, height: image.height);
 
     // Sobel 算子
     const sobelX = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
@@ -219,9 +220,9 @@ class PixelArtProcessor {
         }
 
         // 计算梯度幅值
-        final magnitude = (gx * gx + gy * gy).sqrt().toInt();
+        final magnitude = math.sqrt(gx * gx + gy * gy).toInt();
         final clamped = magnitude.clamp(0, 255);
-        result.setPixelRgba(x, y, clamped, clamped, clamped);
+        result.setPixelRgba(x, y, clamped, clamped, clamped, 255);
       }
     }
 
@@ -236,7 +237,7 @@ class PixelArtProcessor {
         final gray = img.getLuminance(pixel);
         var value = gray > threshold ? 255 : 0;
         if (invert) value = 255 - value;
-        image.setPixelRgba(x, y, value, value, value);
+        image.setPixelRgba(x, y, value, value, value, 255);
       }
     }
     return image;

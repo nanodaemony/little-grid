@@ -327,7 +327,7 @@ class MazeThemeData {
           endColor: Colors.red.shade400,
           hintColor: Colors.amber.shade400,
           pathHighlightColor: Colors.green.shade700.withValues(alpha: 0.5),
-          backgroundColor: Colors.grey.shade950,
+          backgroundColor: Colors.grey.shade900,
         );
       case MazeTheme.fresh:
         return MazeThemeData(

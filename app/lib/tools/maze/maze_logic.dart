@@ -201,7 +201,7 @@ class MazeLogic {
       }
     }
 
-    if (startRow == null || endRow == null) return;
+    if (startRow == null || endRow == null || endCol == null) return;
 
     // 从当前位置寻路
     final path = PathFinder.findPath(

@@ -68,7 +68,7 @@ class _DicePageState extends State<DicePage> {
   }
 
   void _startListeningToAccelerometer() {
-    _accelerometerSubscription = userAccelerometerEventStream.listen(
+    _accelerometerSubscription = userAccelerometerEventStream().listen(
       _onAccelerometerEvent,
       onError: (error) {
         // 忽略传感器错误
