@@ -40,6 +40,7 @@ import 'tools/bmi/bmi_tool.dart';
 import 'tools/game2048/game2048_tool.dart';
 import 'tools/salary_calculator/salary_calculator_tool.dart';
 import 'tools/horoscope/horoscope_tool.dart';
+import 'tools/treehole/treehole_tool.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +75,7 @@ void main() async {
   ToolRegistry.register(Game2048Tool());
   ToolRegistry.register(SalaryCalculatorTool());
   ToolRegistry.register(HoroscopeTool());
+  ToolRegistry.register(TreeholeTool());
 
   runApp(const MyApp());
 }
