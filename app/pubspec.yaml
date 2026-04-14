@@ -30,6 +30,7 @@ dependencies:
 
   # 图片处理
   flutter_image_compress: ^2.0.0
+  image: ^4.0.17  # 用于图像处理
 
   # 画板绘制
   perfect_freehand: ^1.0.0
