@@ -32,6 +32,7 @@
             v-if="activeView === 'data' && currentTable"
             ref="dataView"
             :table-name="currentTable"
+            :columns="currentColumns"
             :is-sensitive="isSensitive"
           />
           <StructureView
@@ -43,15 +44,6 @@
         </div>
       </el-main>
     </el-container>
-
-    <!-- 数据编辑对话框 -->
-    <DataForm
-      ref="dataForm"
-      :table-name="currentTable"
-      :columns="currentColumns"
-      :is-sensitive="isSensitive"
-      @success="handleDataChange"
-    />
   </div>
 </template>
 
@@ -59,12 +51,11 @@
 import TableTree from './components/TableTree.vue'
 import DataView from './components/DataView.vue'
 import StructureView from './components/StructureView.vue'
-import DataForm from './components/DataForm.vue'
 import { isSensitiveTable } from '@/api/tools/databaseBrowser'
 
 export default {
   name: 'DatabaseBrowser',
-  components: { TableTree, DataView, StructureView, DataForm },
+  components: { TableTree, DataView, StructureView },
   data() {
     return {
       activeView: 'data',
@@ -85,21 +76,6 @@ export default {
         this.isSensitive = res.data.sensitive
       } finally {
         this.loading = false
-      }
-    },
-    handleDataChange() {
-      if (this.$refs.dataView) {
-        this.$refs.dataView.refresh()
-      }
-    },
-    openAddForm() {
-      if (this.$refs.dataForm) {
-        this.$refs.dataForm.openAdd()
-      }
-    },
-    openEditForm(row) {
-      if (this.$refs.dataForm) {
-        this.$refs.dataForm.openEdit(row)
       }
     }
   }

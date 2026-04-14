@@ -19,7 +19,7 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column
-        v-for="column in columns"
+        v-for="column in displayColumns"
         :key="column.columnName"
         :prop="column.columnName"
         :label="column.columnComment || column.columnName"
@@ -55,7 +55,7 @@
     <DataForm
       ref="dataForm"
       :table-name="tableName"
-      :columns="columns"
+      :columns="displayColumns"
       :is-sensitive="isSensitive"
       @success="refresh"
     />
@@ -74,6 +74,10 @@ export default {
       type: String,
       required: true
     },
+    columns: {
+      type: Array,
+      default: () => []
+    },
     isSensitive: {
       type: Boolean,
       default: false
@@ -82,12 +86,20 @@ export default {
   data() {
     return {
       loading: false,
-      columns: [],
+      internalColumns: [],
       rows: [],
       total: 0,
       currentPage: 1,
       pageSize: 20,
       selectedRows: []
+    }
+  },
+  computed: {
+    displayColumns() {
+      if (this.columns && this.columns.length > 0) {
+        return this.columns
+      }
+      return this.internalColumns
     }
   },
   watch: {
@@ -105,7 +117,7 @@ export default {
       this.loading = true
       try {
         const res = await getTableData(this.tableName, this.currentPage, this.pageSize)
-        this.columns = res.data.columns || []
+        this.internalColumns = res.data.columns || []
         this.rows = res.data.rows || []
         this.total = res.data.total || 0
       } catch (error) {
@@ -163,7 +175,7 @@ export default {
 
         // 构建删除条件
         const whereClause = {}
-        const primaryKeys = this.columns.filter(col => col.columnKey === 'PRI')
+        const primaryKeys = this.displayColumns.filter(col => col.columnKey === 'PRI')
         if (primaryKeys.length > 0) {
           primaryKeys.forEach(col => {
             whereClause[col.columnName] = row[col.columnName]
@@ -206,7 +218,7 @@ export default {
         // 逐条删除
         for (const row of this.selectedRows) {
           const whereClause = {}
-          const primaryKeys = this.columns.filter(col => col.columnKey === 'PRI')
+          const primaryKeys = this.displayColumns.filter(col => col.columnKey === 'PRI')
           if (primaryKeys.length > 0) {
             primaryKeys.forEach(col => {
               whereClause[col.columnName] = row[col.columnName]
