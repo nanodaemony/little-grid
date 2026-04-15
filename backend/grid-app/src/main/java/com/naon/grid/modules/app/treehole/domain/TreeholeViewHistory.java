@@ -7,7 +7,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.Date as UtilDate;
 
 @Entity
 @Getter
@@ -35,11 +34,11 @@ public class TreeholeViewHistory implements Serializable {
     private Date viewDate;
 
     @Column(name = "created_at")
-    private UtilDate createdAt;
+    private java.util.Date createdAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = new UtilDate();
+        createdAt = new java.util.Date();
         if (viewDate == null) {
             viewDate = new Date(System.currentTimeMillis());
         }

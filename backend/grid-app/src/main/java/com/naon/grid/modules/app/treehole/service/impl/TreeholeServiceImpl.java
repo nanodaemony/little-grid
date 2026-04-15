@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -95,13 +97,13 @@ public class TreeholeServiceImpl implements TreeholeService {
                     return toPostDTO(post, replyCount);
                 })
                 .collect(Collectors.toList());
-        return PageUtil.toPageResult(postPage, dtoList);
+        return PageUtil.toPage(postPage, dtoList);
     }
 
     @Override
     public PostDetailDTO getPostDetail(Long postId, Long userId) {
         TreeholePost post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException(TreeholePost.class, postId));
+                .orElseThrow(() -> new EntityNotFoundException(TreeholePost.class, "id", String.valueOf(postId)));
 
         Long replyCount = postRepository.countRepliesByPostId(postId);
         PostDTO postDTO = toPostDTO(post, replyCount);
@@ -122,7 +124,7 @@ public class TreeholeServiceImpl implements TreeholeService {
         }
 
         // 查询用户点赞状态
-        List<Long> likedReplyIds = allReplyIds.isEmpty() ? List.of() :
+        List<Long> likedReplyIds = allReplyIds.isEmpty() ? Collections.emptyList() :
                 replyLikeRepository.findLikedReplyIds(allReplyIds, userId);
 
         // 构建二级回复Map
@@ -146,7 +148,7 @@ public class TreeholeServiceImpl implements TreeholeService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         TreeholePost post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException(TreeholePost.class, postId));
+                .orElseThrow(() -> new EntityNotFoundException(TreeholePost.class, "id", String.valueOf(postId)));
 
         if (!post.getUserId().equals(userId)) {
             throw new BadRequestException("只能删除自己的帖子");
@@ -178,13 +180,13 @@ public class TreeholeServiceImpl implements TreeholeService {
     public ReplyDTO createReply(Long postId, Long userId, CreateReplyDTO dto) {
         // 验证帖子存在
         if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException(TreeholePost.class, postId);
+            throw new EntityNotFoundException(TreeholePost.class, "id", String.valueOf(postId));
         }
 
         // 如果有parentId,验证父回复存在且属于同一帖子
         if (dto.getParentId() != null) {
             TreeholeReply parent = replyRepository.findById(dto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, dto.getParentId()));
+                    .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, "id", String.valueOf(dto.getParentId())));
             if (!parent.getPostId().equals(postId)) {
                 throw new BadRequestException("父回复不属于该帖子");
             }
@@ -205,7 +207,7 @@ public class TreeholeServiceImpl implements TreeholeService {
                 .likeCount(reply.getLikeCount())
                 .isLiked(false)
                 .createdAt(reply.getCreatedAt().getTime())
-                .children(List.of())
+                .children(Collections.emptyList())
                 .build();
     }
 
@@ -213,7 +215,7 @@ public class TreeholeServiceImpl implements TreeholeService {
     @Transactional
     public LikeResultDTO likeReply(Long replyId, Long userId) {
         TreeholeReply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, replyId));
+                .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, "id", String.valueOf(replyId)));
 
         if (replyLikeRepository.existsByReplyIdAndUserId(replyId, userId)) {
             // 已经点赞过了,返回当前状态
@@ -241,7 +243,7 @@ public class TreeholeServiceImpl implements TreeholeService {
     @Transactional
     public LikeResultDTO unlikeReply(Long replyId, Long userId) {
         TreeholeReply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, replyId));
+                .orElseThrow(() -> new EntityNotFoundException(TreeholeReply.class, "id", String.valueOf(replyId)));
 
         TreeholeReplyLike like = replyLikeRepository.findByReplyIdAndUserId(replyId, userId)
                 .orElse(null);
@@ -279,9 +281,9 @@ public class TreeholeServiceImpl implements TreeholeService {
 
     private ReplyDTO toReplyDTO(TreeholeReply reply, List<Long> likedReplyIds,
                                   Map<Long, List<TreeholeReply>> childrenMap) {
-        List<ReplyDTO> children = childrenMap.getOrDefault(reply.getId(), List.of())
+        List<ReplyDTO> children = childrenMap.getOrDefault(reply.getId(), Collections.emptyList())
                 .stream()
-                .map(child -> toReplyDTO(child, likedReplyIds, Map.of()))
+                .map(child -> toReplyDTO(child, likedReplyIds, Collections.emptyMap()))
                 .collect(Collectors.toList());
 
         return ReplyDTO.builder()
