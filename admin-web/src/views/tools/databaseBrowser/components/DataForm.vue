@@ -112,23 +112,23 @@ export default {
   methods: {
     isNumberType(type) {
       const numTypes = ['INT', 'INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT', 'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE']
-      return numTypes.includes(type?.toUpperCase())
+      return numTypes.includes(type && type.toUpperCase())
     },
     isDateTimeType(type) {
       const dtTypes = ['DATETIME', 'TIMESTAMP']
-      return dtTypes.includes(type?.toUpperCase())
+      return dtTypes.includes(type && type.toUpperCase())
     },
     isDateType(type) {
       const dTypes = ['DATE', 'YEAR']
-      return dTypes.includes(type?.toUpperCase())
+      return dTypes.includes(type && type.toUpperCase())
     },
     isBooleanType(type) {
       const bTypes = ['BOOLEAN', 'BOOL', 'BIT']
-      return bTypes.includes(type?.toUpperCase())
+      return bTypes.includes(type && type.toUpperCase())
     },
     isTextType(type) {
       const tTypes = ['TEXT', 'LONGTEXT', 'MEDIUMTEXT', 'TINYTEXT', 'JSON']
-      return tTypes.includes(type?.toUpperCase())
+      return tTypes.includes(type && type.toUpperCase())
     },
     openAdd() {
       this.isEdit = false
