@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
 import '../models/tool_config.dart';
+import '../models/card_background.dart';
 
 class StorageService {
   static Future<void> saveToolConfig(ToolConfig config) async {
@@ -120,5 +121,43 @@ class StorageService {
       where: 'key = ?',
       whereArgs: [key],
     );
+  }
+
+  // 卡片背景主题管理
+  static const String _cardBackgroundKey = 'card_background';
+
+  static Future<void> saveCardBackground(CardBackground background) async {
+    final map = background.toMap();
+    // 将 map 序列化为 JSON 字符串存储
+    final jsonStr = _encodeBackgroundMap(map);
+    await setString(_cardBackgroundKey, jsonStr);
+  }
+
+  static Future<CardBackground?> getCardBackground() async {
+    final jsonStr = await getString(_cardBackgroundKey);
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final map = _decodeBackgroundMap(jsonStr);
+      return CardBackground.fromMap(map);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 简单的 JSON 序列化（避免引入额外依赖）
+  static String _encodeBackgroundMap(Map<String, dynamic> map) {
+    final type = map['type'] as int;
+    final colorKey = map['colorKey'] as String? ?? '';
+    final assetPath = map['assetPath'] as String? ?? '';
+    return '$type|$colorKey|$assetPath';
+  }
+
+  static Map<String, dynamic> _decodeBackgroundMap(String str) {
+    final parts = str.split('|');
+    return {
+      'type': int.parse(parts[0]),
+      'colorKey': parts.length > 1 && parts[1].isNotEmpty ? parts[1] : null,
+      'assetPath': parts.length > 2 && parts[2].isNotEmpty ? parts[2] : null,
+    };
   }
 }
