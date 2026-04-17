@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../core/ui/app_colors.dart';
 import '../providers/auth_provider.dart';
 import 'my_info_page.dart';
+import 'theme_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -40,6 +41,18 @@ class _SettingsPageState extends State<SettingsPage> {
             title: '语言',
             subtitle: _language,
             onTap: () => _showLanguageDialog(),
+          ),
+          _buildMenuItem(
+            icon: Icons.palette,
+            title: '主题',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ThemePage(),
+                ),
+              );
+            },
           ),
 
           const Divider(),
