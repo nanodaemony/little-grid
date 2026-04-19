@@ -9,7 +9,6 @@ COPY settings.xml /usr/share/maven/ref/settings.xml
 # 复制所有文件
 COPY pom.xml .
 COPY grid-common grid-common
-COPY grid-logging grid-logging
 COPY grid-system grid-system
 COPY grid-tools grid-tools
 COPY grid-app grid-app
