@@ -23,89 +23,101 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: ListView(
         children: [
-          // 账号设置
-          _buildSectionHeader('账号'),
-          _buildMenuItem(
-            icon: Icons.person_outline,
-            title: '我的信息',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyInfoPage(),
-                ),
-              );
-            },
+          // 账号分组
+          _buildSectionCard(
+            title: '账号',
+            children: [
+              _buildMenuItem(
+                icon: Icons.person_outline,
+                title: '我的信息',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyInfoPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
 
-          const Divider(),
-
-          // 外观设置
-          _buildSectionHeader('外观'),
-          _buildMenuItem(
-            icon: Icons.palette,
-            title: '主题',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ThemePage(),
-                ),
-              );
-            },
+          // 外观分组
+          _buildSectionCard(
+            title: '外观',
+            children: [
+              _buildMenuItem(
+                icon: Icons.palette,
+                title: '主题',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThemePage(),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
 
-          const Divider(),
-
-          // 通知设置
-          _buildSectionHeader('通知'),
-          _buildSwitchItem(
-            icon: Icons.notifications,
-            title: '推送通知',
-            value: _notificationsEnabled,
-            onChanged: (value) {
-              setState(() => _notificationsEnabled = value);
-            },
+          // 通知分组
+          _buildSectionCard(
+            title: '通知',
+            children: [
+              _buildSwitchItem(
+                icon: Icons.notifications,
+                title: '推送通知',
+                value: _notificationsEnabled,
+                onChanged: (value) {
+                  setState(() => _notificationsEnabled = value);
+                },
+              ),
+            ],
           ),
 
-          const Divider(),
-
-          // 数据管理
-          _buildSectionHeader('数据'),
-          _buildMenuItem(
-            icon: Icons.download,
-            title: '导出数据',
-            onTap: () {
-              // TODO: 导出数据
-            },
-          ),
-          _buildMenuItem(
-            icon: Icons.delete_outline,
-            title: '清除缓存',
-            subtitle: '12.5 MB',
-            onTap: () => _showClearCacheDialog(),
-          ),
-
-          const Divider(),
-
-          // 其他
-          _buildSectionHeader('其他'),
-          _buildMenuItem(
-            icon: Icons.update,
-            title: '检查更新',
-            onTap: () {
-              // TODO: 检查更新
-            },
-          ),
-          _buildMenuItem(
-            icon: Icons.privacy_tip,
-            title: '隐私政策',
-            onTap: () {
-              // TODO: 显示隐私政策
-            },
+          // 数据分组
+          _buildSectionCard(
+            title: '数据',
+            children: [
+              _buildMenuItem(
+                icon: Icons.download,
+                title: '导出数据',
+                onTap: () {
+                  // TODO: 导出数据
+                },
+              ),
+              _buildMenuItem(
+                icon: Icons.delete_outline,
+                title: '清除缓存',
+                subtitle: '12.5 MB',
+                onTap: () => _showClearCacheDialog(),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 32),
+          // 其他分组
+          _buildSectionCard(
+            title: '其他',
+            children: [
+              _buildMenuItem(
+                icon: Icons.update,
+                title: '检查更新',
+                onTap: () {
+                  // TODO: 检查更新
+                },
+              ),
+              _buildMenuItem(
+                icon: Icons.privacy_tip,
+                title: '隐私政策',
+                onTap: () {
+                  // TODO: 显示隐私政策
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
 
           // 退出登录按钮
           Padding(
@@ -117,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
