@@ -62,7 +62,6 @@ class PomodoroService extends ChangeNotifier {
     );
     notifyListeners();
 
-    _scheduleNotification();
     _startTimer();
   }
 
@@ -83,7 +82,6 @@ class PomodoroService extends ChangeNotifier {
     );
     notifyListeners();
 
-    _scheduleNotification();
     _startTimer();
   }
 
@@ -112,6 +110,7 @@ class PomodoroService extends ChangeNotifier {
       );
       notifyListeners();
       _showInAppBanner();
+      _showSystemNotification();
       _notifyUser();
       _handleBreakComplete();
     } else {
@@ -122,6 +121,7 @@ class PomodoroService extends ChangeNotifier {
       );
       notifyListeners();
       _showInAppBanner();
+      _showSystemNotification();
       _notifyUser();
       _handleWorkComplete();
     }
@@ -196,7 +196,6 @@ class PomodoroService extends ChangeNotifier {
     _timer?.cancel();
     _state = _state.copyWith(status: PomodoroStatus.paused);
     notifyListeners();
-    _cancelNotifications();
   }
 
   // 继续
@@ -218,7 +217,6 @@ class PomodoroService extends ChangeNotifier {
     _state = const PomodoroState();
     _startedAt = null;
     _endTime = null;
-    _cancelNotifications();
     _loadTodayCount();
     notifyListeners();
   }
@@ -243,35 +241,20 @@ class PomodoroService extends ChangeNotifier {
     super.dispose();
   }
 
-  /// Schedule notification for timer end
-  void _scheduleNotification() {
-    if (_endTime == null) return;
-
-    // Schedule without waiting
+  /// Show system notification immediately when timer ends
+  void _showSystemNotification() {
     () async {
       final notificationService = NotificationService();
+      final title = !_state.isBreak ? '番茄钟结束' : '休息结束';
+      final body = !_state.isBreak ? '休息一下吧，喝杯水~' : '开始新的专注吧！';
+      final channel = 'pomodoro_channel';
 
-      // Cancel any existing notifications for this session
-      await notificationService.cancel(1000);
-      await notificationService.cancel(1001);
-
-      // Schedule based on current mode
-      final id = !_state.isBreak ? 1000 : 1001;
-      await notificationService.showPomodoroNotification(
-        id: id,
-        isWorkFinished: !_state.isBreak,
-        scheduledDate: _endTime!,
+      await notificationService.showImmediately(
+        id: !_state.isBreak ? 1000 : 1001,
+        title: title,
+        body: body,
+        channel: channel,
       );
-    }();
-  }
-
-  /// Cancel scheduled notifications
-  void _cancelNotifications() {
-    // Cancel without waiting
-    () async {
-      final notificationService = NotificationService();
-      await notificationService.cancel(1000);
-      await notificationService.cancel(1001);
     }();
   }
 
