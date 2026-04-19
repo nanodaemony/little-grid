@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/banner_queue.dart';
 import '../ui/app_colors.dart';
 
