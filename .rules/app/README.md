@@ -59,6 +59,12 @@ app/lib/
 
 详见 [patterns/new_tool.md](./patterns/new_tool.md)
 
+### 消息通知接入
+
+APP 支持两种通知方式：APP内横幅通知和系统下拉框通知。
+
+详见 [patterns/notifications.md](./patterns/notifications.md)
+
 ### 颜色使用
 
 使用 `AppColors` 中定义的颜色常量，**不要硬编码颜色值**：
