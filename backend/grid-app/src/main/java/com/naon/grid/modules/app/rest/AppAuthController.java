@@ -1,6 +1,7 @@
 package com.naon.grid.modules.app.rest;
 
 import com.naon.grid.annotation.rest.AnonymousPostMapping;
+import com.naon.grid.config.SecurityProperties;
 import com.naon.grid.modules.app.security.AppTokenProvider;
 import com.naon.grid.modules.app.service.AppAuthService;
 import com.naon.grid.modules.app.service.dto.LoginDTO;
@@ -8,7 +9,6 @@ import com.naon.grid.modules.app.service.dto.RegisterDTO;
 import com.naon.grid.modules.app.service.dto.TokenDTO;
 import com.naon.grid.modules.app.service.dto.UpdateUserDTO;
 import com.naon.grid.modules.app.service.dto.AppUserDTO;
-import com.naon.grid.modules.security.config.SecurityProperties;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;

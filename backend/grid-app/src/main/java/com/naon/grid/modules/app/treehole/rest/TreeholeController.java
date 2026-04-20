@@ -1,9 +1,9 @@
 package com.naon.grid.modules.app.treehole.rest;
 
+import com.naon.grid.config.SecurityProperties;
 import com.naon.grid.modules.app.security.AppTokenProvider;
 import com.naon.grid.modules.app.treehole.service.TreeholeService;
 import com.naon.grid.modules.app.treehole.service.dto.*;
-import com.naon.grid.modules.security.config.SecurityProperties;
 import com.naon.grid.utils.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

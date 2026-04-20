@@ -27,12 +27,12 @@ public class AppTokenProvider implements InitializingBean {
 
     private Key signingKey;
     private JwtParser jwtParser;
-    private final com.naon.grid.modules.security.config.SecurityProperties properties;
+    private final com.naon.grid.config.SecurityProperties properties;
 
     @Value("${app.auth.token-validity-in-seconds:15552000}")
     private long tokenValidityInSeconds;
 
-    public AppTokenProvider(com.naon.grid.modules.security.config.SecurityProperties properties) {
+    public AppTokenProvider(com.naon.grid.config.SecurityProperties properties) {
         this.properties = properties;
     }
 
