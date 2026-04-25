@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/ui/app_colors.dart';
+import '../../../core/ui/app_colors.dart';
 import '../auth_common_widgets.dart';
 
 class ForgotPasswordPageA extends StatefulWidget {
