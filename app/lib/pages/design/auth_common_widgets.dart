@@ -46,10 +46,7 @@ class PasswordStrengthBar extends StatelessWidget {
     if (password.isEmpty) return 0;
     if (password.length < 8) return 1;
     if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)').hasMatch(password)) return 1;
-    if (password.length >= 10 &&
-        RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(password)) {
-      return 3;
-    }
+    if (password.length >= 12) return 3;
     return 2;
   }
 

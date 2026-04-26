@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:provider/provider.dart';
+import '../../core/ui/app_colors.dart';
 import '../../core/services/rsa_service.dart';
 import '../../providers/auth_provider.dart';
-import '../../pages/profile_page.dart';
+import '../design/auth_common_widgets.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -49,13 +51,11 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final deviceId = await _getDeviceId();
-      // RSA加密密码
       String encryptedPassword;
       try {
         await RsaService.initialize();
         encryptedPassword = RsaService.encryptPassword(_passwordController.text);
       } catch (e) {
-        // 如果RSA加密失败，使用明文（开发测试用）
         encryptedPassword = _passwordController.text;
       }
 
@@ -65,13 +65,12 @@ class _LoginPageState extends State<LoginPage> {
         encryptedPassword,
         deviceId,
       );
-      // Login success, go back to previous page or home
       if (mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('登录失败: $e')),
+        SnackBar(content: Text('登录失败：$e')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -82,65 +81,109 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('登录')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: '手机号',
-                hintText: '请输入手机号',
-                prefixIcon: Icon(Icons.phone),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: '密码',
-                hintText: '请输入密码',
-                prefixIcon: Icon(Icons.lock),
-              ),
-            ),
             const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
-                  );
-                },
-                child: const Text('忘记密码？'),
+            const AuthLogoHeader(),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LabelDividerField(
+                    label: '手机号',
+                    hintText: '请输入手机号',
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 16),
+                  LabelDividerField(
+                    label: '密码',
+                    hintText: '请输入密码',
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textTertiary,
+                        size: 20,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ForgotPasswordPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        '忘记密码？',
+                        style: TextStyle(color: AppColors.primary, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('登 录', style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        '还没有账号？去注册',
+                        style: TextStyle(color: AppColors.primary, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('登录'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RegisterPage()),
-                  );
-              },
-              child: const Text('还没有账号？去注册'),
-            ),
-            const SizedBox(height: 24),
           ],
         ),
       ),

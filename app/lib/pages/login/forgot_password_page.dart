@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/ui/app_colors.dart';
 import '../../core/services/rsa_service.dart';
 import '../../providers/auth_provider.dart';
+import '../design/auth_common_widgets.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -20,25 +22,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   int _currentStep = 1;
-  String _passwordStrength = '';
-  Color _strengthColor = Colors.grey;
   int _countdown = 0;
   Timer? _timer;
 
   void _checkPasswordStrength(String password) {
-    if (password.length < 8) {
-      _passwordStrength = '密码太短（至少8位）';
-      _strengthColor = Colors.red;
-    } else if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)').hasMatch(password)) {
-      _passwordStrength = '需包含字母和数字';
-      _strengthColor = Colors.red;
-    } else if (password.length >= 10 && RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(password)) {
-      _passwordStrength = '密码强度：强';
-      _strengthColor = Colors.green;
-    } else {
-      _passwordStrength = '密码强度：中';
-      _strengthColor = Colors.orange;
-    }
     setState(() {});
   }
 
@@ -108,7 +95,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       }
     } catch (e) {
       if (mounted) {
-        _showError(e.toString().replaceAll('Exception: ', ''));
+        _showError(e.toString().replaceAll('Exception：', ''));
       }
     } finally {
       if (mounted) {
@@ -130,13 +117,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     });
   }
 
+  Future<void> _verifyAndNext() async {
+    if (!_validateCode()) return;
+    setState(() => _currentStep = 3);
+  }
+
   Future<void> _resetPassword() async {
     if (!_validatePassword()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      // RSA加密密码
       String encryptedPassword;
       try {
         await RsaService.initialize();
@@ -160,139 +151,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       }
     } catch (e) {
       if (mounted) {
-        _showError(e.toString().replaceAll('Exception: ', ''));
+        _showError(e.toString().replaceAll('Exception：', ''));
       }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('忘记密码')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 32),
-            if (_currentStep == 1) ..._buildStep1(),
-            if (_currentStep == 2) ..._buildStep2(),
-            if (_currentStep == 3) ..._buildStep3(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildStep1() {
-    return [
-      const Text('输入您的注册手机号', style: TextStyle(fontSize: 16)),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _phoneController,
-        keyboardType: TextInputType.phone,
-        decoration: const InputDecoration(
-          labelText: '手机号',
-          hintText: '请输入手机号',
-          prefixIcon: Icon(Icons.phone),
-        ),
-      ),
-      const SizedBox(height: 32),
-      SizedBox(
-        height: 48,
-        child: ElevatedButton(
-          onPressed: _isLoading ? null : _sendCode,
-          child: _isLoading
-              ? const CircularProgressIndicator()
-              : const Text('发送验证码', style: TextStyle(fontSize: 16)),
-        ),
-      ),
-    ];
-  }
-
-  List<Widget> _buildStep2() {
-    return [
-      const Text('输入邮箱中的验证码', style: TextStyle(fontSize: 16)),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _codeController,
-        keyboardType: TextInputType.number,
-        maxLength: 6,
-        decoration: InputDecoration(
-          labelText: '验证码',
-          hintText: '请输入6位验证码',
-          prefixIcon: const Icon(Icons.verified_user),
-          suffixText: _countdown > 0 ? '$_countdown秒后重发' : '重新发送',
-          suffixStyle: TextStyle(
-            color: _countdown > 0 ? Colors.grey : const Color(0xFF5B9BD5),
-          ),
-        ),
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24, letterSpacing: 8),
-      ),
-      const SizedBox(height: 16),
-      SizedBox(
-        height: 48,
-        child: ElevatedButton(
-          onPressed: () => setState(() => _currentStep = 3),
-          child: const Text('下一步', style: TextStyle(fontSize: 16)),
-        ),
-      ),
-    ];
-  }
-
-  List<Widget> _buildStep3() {
-    return [
-      const Text('设置新密码', style: TextStyle(fontSize: 16)),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _passwordController,
-        obscureText: _obscurePassword,
-        onChanged: _checkPasswordStrength,
-        decoration: InputDecoration(
-          labelText: '新密码',
-          hintText: '至少8位，包含字母和数字',
-          prefixIcon: const Icon(Icons.lock),
-          suffixIcon: IconButton(
-            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-          ),
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        _passwordStrength,
-        style: TextStyle(color: _strengthColor, fontSize: 12),
-      ),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _confirmPasswordController,
-        obscureText: _obscureConfirmPassword,
-        decoration: InputDecoration(
-          labelText: '确认密码',
-          hintText: '再次输入密码',
-          prefixIcon: const Icon(Icons.lock_outline),
-          suffixIcon: IconButton(
-            icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
-            onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-          ),
-        ),
-      ),
-      const SizedBox(height: 32),
-      SizedBox(
-        height: 48,
-        child: ElevatedButton(
-          onPressed: () => _resetPassword(),
-          child: _isLoading
-              ? const CircularProgressIndicator()
-              : const Text('重置密码', style: TextStyle(fontSize: 16)),
-        ),
-      ),
-    ];
   }
 
   @override
@@ -303,5 +168,175 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     _confirmPasswordController.dispose();
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('忘记密码')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            const AuthLogoHeader(),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StepIndicator(currentStep: _currentStep),
+                  const SizedBox(height: 24),
+                  if (_currentStep == 1) ..._buildStep1(),
+                  if (_currentStep == 2) ..._buildStep2(),
+                  if (_currentStep == 3) ..._buildStep3(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildStep1() {
+    return [
+      LabelDividerField(
+        label: '手机号',
+        hintText: '请输入手机号',
+        controller: _phoneController,
+        keyboardType: TextInputType.phone,
+      ),
+      const SizedBox(height: 16),
+      SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _sendCode,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : const Text('发送验证码', style: TextStyle(fontSize: 16)),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildStep2() {
+    return [
+      LabelDividerField(
+        label: '验证码',
+        hintText: '请输入6位验证码',
+        controller: _codeController,
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 8),
+      Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+          onPressed: _countdown == 0 ? _sendCode : null,
+          child: Text(
+            _countdown > 0 ? '$_countdown秒后重新发送' : '重新发送',
+            style: TextStyle(
+              color: _countdown > 0 ? AppColors.textTertiary : AppColors.primary,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _verifyAndNext,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : const Text('下一步', style: TextStyle(fontSize: 16)),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildStep3() {
+    return [
+      LabelDividerField(
+        label: '新密码',
+        hintText: '至少8位，包含字母和数字',
+        controller: _passwordController,
+        obscureText: _obscurePassword,
+        onChanged: _checkPasswordStrength,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+            color: AppColors.textTertiary,
+            size: 20,
+          ),
+          onPressed: () =>
+              setState(() => _obscurePassword = !_obscurePassword),
+        ),
+      ),
+      const SizedBox(height: 6),
+      PasswordStrengthBar(password: _passwordController.text),
+      const SizedBox(height: 16),
+      LabelDividerField(
+        label: '确认密码',
+        hintText: '再次输入密码',
+        controller: _confirmPasswordController,
+        obscureText: _obscureConfirmPassword,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+            color: AppColors.textTertiary,
+            size: 20,
+          ),
+          onPressed: () => setState(
+              () => _obscureConfirmPassword = !_obscureConfirmPassword),
+        ),
+      ),
+      const SizedBox(height: 20),
+      SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _resetPassword,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : const Text('完成', style: TextStyle(fontSize: 16)),
+        ),
+      ),
+    ];
   }
 }

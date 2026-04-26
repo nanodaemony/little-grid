@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:provider/provider.dart';
+import '../../core/ui/app_colors.dart';
 import '../../core/services/rsa_service.dart';
 import '../../providers/auth_provider.dart';
+import '../design/auth_common_widgets.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,8 +21,6 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String _passwordStrength = '';
-  Color _strengthColor = Colors.grey;
 
   Future<String> _getDeviceId() async {
     final deviceInfo = DeviceInfoPlugin();
@@ -34,19 +34,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _checkPasswordStrength(String password) {
-    if (password.length < 8) {
-      _passwordStrength = '密码太短（至少8位）';
-      _strengthColor = Colors.red;
-    } else if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)').hasMatch(password)) {
-      _passwordStrength = '需包含字母和数字';
-      _strengthColor = Colors.red;
-    } else if (password.length >= 10 && RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(password)) {
-      _passwordStrength = '密码强度：强';
-      _strengthColor = Colors.green;
-    } else {
-      _passwordStrength = '密码强度：中';
-      _strengthColor = Colors.orange;
-    }
     setState(() {});
   }
 
@@ -91,13 +78,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final deviceId = await _getDeviceId();
-      // RSA加密密码
       String encryptedPassword;
       try {
         await RsaService.initialize();
         encryptedPassword = RsaService.encryptPassword(_passwordController.text);
       } catch (e) {
-        // 如果RSA加密失败，使用明文（开发测试用）
         encryptedPassword = _passwordController.text;
       }
 
@@ -112,96 +97,12 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('注册成功')),
       );
-      // 直接返回到首页，跳过登录页
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      _showError(e.toString().replaceAll('Exception: ', ''));
+      _showError(e.toString().replaceAll('Exception：', ''));
     } finally {
       setState(() => _isLoading = false);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('注册')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 32),
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: '手机号 *',
-                hintText: '请输入手机号',
-                prefixIcon: Icon(Icons.phone),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              onChanged: _checkPasswordStrength,
-              decoration: InputDecoration(
-                labelText: '密码 *',
-                hintText: '至少8位，包含字母和数字',
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _passwordStrength,
-              style: TextStyle(color: _strengthColor, fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: _obscureConfirmPassword,
-              decoration: InputDecoration(
-                labelText: '确认密码 *',
-                hintText: '再次输入密码',
-                prefixIcon: const Icon(Icons.lock_outline),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _nicknameController,
-              decoration: const InputDecoration(
-                labelText: '昵称（选填）',
-                hintText: '请输入昵称',
-                prefixIcon: Icon(Icons.person_outline),
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _register,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('注册', style: TextStyle(fontSize: 16)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('已有账号？去登录'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -211,5 +112,120 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmPasswordController.dispose();
     _nicknameController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('注册')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            const AuthLogoHeader(),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LabelDividerField(
+                    label: '手机号',
+                    hintText: '请输入手机号',
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 16),
+                  LabelDividerField(
+                    label: '密码',
+                    hintText: '至少8位，包含字母和数字',
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    onChanged: _checkPasswordStrength,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textTertiary,
+                        size: 20,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  PasswordStrengthBar(password: _passwordController.text),
+                  const SizedBox(height: 16),
+                  LabelDividerField(
+                    label: '确认密码',
+                    hintText: '再次输入密码',
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textTertiary,
+                        size: 20,
+                      ),
+                      onPressed: () => setState(
+                          () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  LabelDividerField(
+                    label: '昵称（选填）',
+                    hintText: '请输入昵称',
+                    controller: _nicknameController,
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text('注 册', style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        '已有账号？去登录',
+                        style: TextStyle(color: AppColors.primary, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
