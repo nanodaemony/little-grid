@@ -233,35 +233,38 @@ class _FeedbackPageState extends State<FeedbackPage> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Stack(
-            alignment: Alignment.topRight,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 28,
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 12,
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 28,
                       color: isSelected
                           ? AppColors.primary
                           : AppColors.textSecondary,
-                      fontWeight:
-                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        fontWeight:
+                            isSelected ? FontWeight.w500 : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               if (isSelected)
-                const Padding(
-                  padding: EdgeInsets.only(right: 4, top: 4),
+                const Positioned(
+                  right: 4,
+                  top: 4,
                   child: Icon(
                     Icons.check_circle,
                     size: 16,
