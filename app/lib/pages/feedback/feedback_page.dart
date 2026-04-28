@@ -232,45 +232,29 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Stack(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      icon,
-                      size: 28,
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        fontWeight:
-                            isSelected ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                    ),
-                  ],
+              Icon(
+                icon,
+                size: 28,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.textSecondary,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
+                  fontWeight:
+                      isSelected ? FontWeight.w500 : FontWeight.normal,
                 ),
               ),
-              if (isSelected)
-                const Positioned(
-                  right: 4,
-                  top: 4,
-                  child: Icon(
-                    Icons.check_circle,
-                    size: 16,
-                    color: AppColors.primary,
-                  ),
-                ),
             ],
           ),
         ),
