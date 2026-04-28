@@ -16,7 +16,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
 
-  String _selectedType = 'FEATURE';
+  String _selectedType = 'SUGGESTION';
   List<File> _selectedImages = [];
   bool _isSubmitting = false;
 
@@ -183,27 +183,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
       content: Row(
         children: [
           _typeCard(
-            type: 'FEATURE',
-            label: '功能反馈',
+            type: 'SUGGESTION',
+            label: '功能建议',
             icon: Icons.lightbulb_outline,
-            isSelected: _selectedType == 'FEATURE',
-            onTap: () => setState(() => _selectedType = 'FEATURE'),
+            isSelected: _selectedType == 'SUGGESTION',
+            onTap: () => setState(() => _selectedType = 'SUGGESTION'),
           ),
           const SizedBox(width: 12),
           _typeCard(
             type: 'ISSUE',
-            label: '问题报告',
+            label: '问题反馈',
             icon: Icons.bug_report_outlined,
             isSelected: _selectedType == 'ISSUE',
             onTap: () => setState(() => _selectedType = 'ISSUE'),
-          ),
-          const SizedBox(width: 12),
-          _typeCard(
-            type: 'SUGGESTION',
-            label: '建议',
-            icon: Icons.rate_review_outlined,
-            isSelected: _selectedType == 'SUGGESTION',
-            onTap: () => setState(() => _selectedType = 'SUGGESTION'),
           ),
         ],
       ),
