@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'feedback_service.dart';
+import '../../core/ui/app_colors.dart';
 import '../../core/services/image_upload_service.dart';
 
 class FeedbackPage extends StatefulWidget {
@@ -19,11 +20,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
   List<File> _selectedImages = [];
   bool _isSubmitting = false;
 
-  final Map<String, String> _feedbackTypes = {
-    'FEATURE': '功能反馈',
-    'ISSUE': '问题报告',
-    'SUGGESTION': '建议',
-  };
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController.addListener(() {
+      setState(() {}); // 触发重绘以更新字数
+    });
+  }
 
   @override
   void dispose() {
@@ -41,7 +44,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (images != null && images.isNotEmpty) {
       setState(() {
-        _selectedImages.addAll(images.map((xFile) => File(xFile.path)).toList());
+        _selectedImages
+            .addAll(images.map((xFile) => File(xFile.path)).toList());
       });
     }
   }
@@ -89,7 +93,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       }
     } catch (e) {
       if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('提交失败: ${e.toString()}'),
             backgroundColor: Colors.red,
@@ -108,237 +112,437 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('反馈建议'),
-      ),
+      appBar: AppBar(title: const Text('反馈建议')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 卡片1: 反馈类型
+            _buildTypeCard(),
+            const SizedBox(height: 12),
+            // 卡片2: 详细描述
+            _buildDescriptionCard(),
+            const SizedBox(height: 12),
+            // 卡片3: 截图上传
+            _buildImageCard(),
+            const SizedBox(height: 24),
+            // 提交按钮
+            _buildSubmitButton(),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required Widget content,
+    EdgeInsets? contentPadding,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          Padding(
+            padding: contentPadding ?? const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: content,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeCard() {
+    return _buildSectionCard(
+      title: '反馈类型',
+      content: Row(
+        children: [
+          _typeCard(
+            type: 'FEATURE',
+            label: '功能反馈',
+            icon: Icons.lightbulb_outline,
+            isSelected: _selectedType == 'FEATURE',
+            onTap: () => setState(() => _selectedType = 'FEATURE'),
+          ),
+          const SizedBox(width: 12),
+          _typeCard(
+            type: 'ISSUE',
+            label: '问题报告',
+            icon: Icons.bug_report_outlined,
+            isSelected: _selectedType == 'ISSUE',
+            onTap: () => setState(() => _selectedType = 'ISSUE'),
+          ),
+          const SizedBox(width: 12),
+          _typeCard(
+            type: 'SUGGESTION',
+            label: '建议',
+            icon: Icons.rate_review_outlined,
+            isSelected: _selectedType == 'SUGGESTION',
+            onTap: () => setState(() => _selectedType = 'SUGGESTION'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _typeCard({
+    required String type,
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primaryLight.withValues(alpha: 0.3)
+                : Colors.white,
+            border: Border.all(
+              color: isSelected ? AppColors.primary : AppColors.border,
+              width: isSelected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Stack(
+            alignment: Alignment.topRight,
             children: [
-              // 反馈类型
-              const Text(
-                '反馈类型',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: _feedbackTypes.entries.map((entry) {
-                  final isSelected = _selectedType == entry.key;
-                  return FilterChip(
-                    label: Text(entry.value),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedType = entry.key;
-                        });
-                      }
-                    },
-                    selectedColor: Colors.blue.shade100,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.blue : Colors.grey,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-
-              // 描述
-              const Text(
-                '详细描述',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '请详细描述您遇到的问题或建议，最多500字',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 6,
-                maxLength: 500,
-                decoration: InputDecoration(
-                  hintText: '请输入反馈内容...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '请输入反馈内容';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // 截图
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    '问题截图（可选）',
+                  Icon(
+                    icon,
+                    size: 28,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
-                  if (_selectedImages.isNotEmpty)
-                    Text(
-                      '${_selectedImages.length}/10',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
                 ],
               ),
-              const SizedBox(height: 12),
-              if (_selectedImages.isNotEmpty)
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: _selectedImages.length + (_selectedImages.length < 10 ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index < _selectedImages.length) {
-                      return Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              _selectedImages[index],
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.black54,
-                                padding: const EdgeInsets.all(4),
-                                minimumSize: const Size(24, 24),
-                              ),
-                              onPressed: () => _removeImage(index),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      // 添加更多图片按钮
-                      return InkWell(
-                        onTap: _pickImages,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_photo_alternate,
-                                size: 32,
-                                color: Colors.grey.shade400,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '添加',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-),
-                      );
-                    }
-                  },
-                )
-              else
-                InkWell(
-                  onTap: _pickImages,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_photo_alternate,
-                          size: 48,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '点击添加截图',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
+              if (isSelected)
+                const Padding(
+                  padding: EdgeInsets.only(right: 4, top: 4),
+                  child: Icon(
+                    Icons.check_circle,
+                    size: 16,
+                    color: AppColors.primary,
                   ),
                 ),
-              const SizedBox(height: 32),
-
-              // 提交按钮
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text(
-                          '提交反馈',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                ),
-              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionCard() {
+    return _buildSectionCard(
+      title: '详细描述',
+      contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '请详细描述您遇到的问题或建议，最多500字',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.textTertiary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.border, width: 1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: TextFormField(
+              controller: _descriptionController,
+              maxLines: 6,
+              maxLength: 500,
+              decoration: const InputDecoration(
+                hintText: '请输入反馈内容...',
+                border: InputBorder.none,
+                counterText: '', // 隐藏默认计数器
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                hintStyle:
+                    TextStyle(color: AppColors.textTertiary, fontSize: 14),
+              ),
+              style:
+                  const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return '请输入反馈内容';
+                }
+                return null;
+              },
+            ),
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${_descriptionController.text.length}/500',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textTertiary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '问题截图（可选）',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                ),
+                if (_selectedImages.isNotEmpty)
+                  Text(
+                    '${_selectedImages.length}/10',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_selectedImages.isEmpty)
+                  _buildEmptyImagePicker()
+                else
+                  _buildImageGrid(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyImagePicker() {
+    return InkWell(
+      onTap: _pickImages,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 120,
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_photo_alternate,
+              size: 40,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '点击添加截图',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageGrid() {
+    final itemCount =
+        _selectedImages.length + (_selectedImages.length < 10 ? 1 : 0);
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 1,
+      ),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if (index < _selectedImages.length) {
+          return _buildImageItem(index);
+        } else {
+          return _buildAddMoreButton();
+        }
+      },
+    );
+  }
+
+  Widget _buildImageItem(int index) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            _selectedImages[index],
+            fit: BoxFit.cover,
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: () => _removeImage(index),
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddMoreButton() {
+    return InkWell(
+      onTap: _pickImages,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_photo_alternate,
+              size: 28,
+              color: AppColors.textTertiary,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '添加',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Form(
+        key: _formKey,
+        child: SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            onPressed: _isSubmitting ? null : _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: _isSubmitting
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    '提交反馈',
+                    style: TextStyle(fontSize: 16),
+                  ),
           ),
         ),
       ),
