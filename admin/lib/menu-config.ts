@@ -21,6 +21,7 @@ export const menuItems: MenuItem[] = [
     children: [
       { label: '树洞审核', href: '/dashboard/content/treehole' },
       { label: '举报处理', href: '/dashboard/content/reports' },
+      { label: '反馈管理', href: '/dashboard/content/feedback' },
     ],
   },
   {
